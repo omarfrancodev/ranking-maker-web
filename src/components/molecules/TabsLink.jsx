@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-const TabsComponentWithRouting = ({ tabs }) => {
+const TabsLinks = ({ tabs }) => {
   return (
     <div className="flex justify-between space-x-1 bg-white p-2 rounded-lg mb-4">
       {tabs.map((tab) => (
@@ -17,11 +17,12 @@ const TabsComponentWithRouting = ({ tabs }) => {
           }
         >
           {tab.icon && <tab.icon className="w-5 h-5" />}
-          <span>{tab.label}</span>
+          <span className="hidden md:inline">{tab.label}</span>{" "}
+          {/* Ocultar el texto en pantallas pequeñas */}
         </NavLink>
       ))}
     </div>
   );
 };
 
-export default TabsComponentWithRouting;
+export default TabsLinks;
