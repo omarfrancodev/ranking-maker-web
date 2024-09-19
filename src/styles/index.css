@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Agrega esto a tu archivo CSS personalizado si Tailwind no tiene clases por defecto */
+ul::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ul::-webkit-scrollbar-track {
+    background: #dcfce7; /* Misma clase que el fondo de las subcategorías */
+  }
+  
+  ul::-webkit-scrollbar-thumb {
+    background-color: #34d399; /* Un color verde para el thumb */
+    border-radius: 10px;
+  }
+  
