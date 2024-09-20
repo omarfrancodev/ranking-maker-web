@@ -6,10 +6,7 @@ const NotificationContainer = ({ notifications }) => {
   const { removeNotification } = useNotification(); // Obtener la función para eliminar notificaciones
 
   return (
-    <div
-      className="fixed top-0 right-0 z-50 w-max h-max p-4 space-y-2"
-      style={{ minWidth: "15%", maxWidth: "25%" }}
-    >
+    <div className="fixed top-0 right-0 z-50 w-full md:w-2/5 min-w-min max-w-max h-max p-2 md:p-1 space-y-2">
       {notifications.map((notification, index) => (
         <Notification
           key={notification.id}

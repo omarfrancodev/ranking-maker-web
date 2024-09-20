@@ -11,7 +11,7 @@ const Button = React.forwardRef(
       <button
         ref={ref} // Asignamos el ref aquí
         onClick={onClick}
-        className={classNames("py-2 px-4 rounded", className)}
+        className={classNames("py-2 px-2 md:px-4 rounded", className)}
       >
         {children}
       </button>
