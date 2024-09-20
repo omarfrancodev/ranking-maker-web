@@ -19,7 +19,7 @@ const CategoryItem = ({
   return (
     <li key={category.id} className="border-b">
       <div
-        className={`flex justify-between p-2 items-center cursor-pointe  ${
+        className={`flex justify-between p-2 items-center align-middle cursor-pointe  ${
           expandedCategory === category.name
             ? "bg-blue-200 bg-opacity-75"
             : "hover:bg-blue-200 hover:bg-opacity-25"
@@ -40,9 +40,9 @@ const CategoryItem = ({
           </div>
         )}
 
-        <div className="flex space-x-1 items-center">
+        <div className="flex space-x-0 md:space-x-2 items-center">
           <Button
-            className="bg-transparent hover:bg-blue-400 text-blue-700 hover:text-white p-2 rounded-md"
+            className="bg-transparent hover:bg-blue-400 text-blue-700 hover:text-white rounded-md"
             onClick={(e) => {
               e.stopPropagation();
               if (editCategory === category.name) {
@@ -59,7 +59,7 @@ const CategoryItem = ({
             )}
           </Button>
           <Button
-            className="bg-transparent hover:bg-red-500 text-red-800 hover:text-white p-2 rounded-md"
+            className="bg-transparent hover:bg-red-500 text-red-800 hover:text-white rounded-md"
             onClick={(e) => {
               e.stopPropagation();
               if (editCategory === category.name) {

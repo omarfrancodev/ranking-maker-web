@@ -47,6 +47,7 @@ const CategoryPanel = () => {
       addNotification("error", "Error al cargar categorías");
     }
     setIsLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -280,33 +281,45 @@ const CategoryPanel = () => {
         message={confirmDialog.message}
       />
 
-      {/* Cargar lista de categorías */}
-      {isLoading ? (
-        <LoadingModal isLoading={isLoading} />
-      ) : (
-        <CategoryList
-          categories={categories}
-          editCategory={editCategory}
-          expandedCategory={expandedCategory}
-          toggleCategoryCollapse={toggleCategoryCollapse}
-          handleEditCategory={handleEditCategory}
-          handleSaveCategory={handleSaveCategory}
-          cancelEditCategory={cancelEditCategory}
-          handleDeleteCategory={handleDeleteCategory}
-          handleDeleteSubcategory={handleDeleteSubcategory}
-          editSubcategory={editSubcategory}
-          handleEditSubcategory={handleEditSubcategory}
-          handleSaveSubcategory={handleSaveSubcategory}
-          cancelEditSubcategory={cancelEditSubcategory}
-          newCategoryName={newCategoryName}
-          setNewCategoryName={setNewCategoryName}
-          newSubcategoryName={newSubcategoryName}
-          setNewSubcategoryName={setNewSubcategoryName}
-        />
-      )}
+      {/* Contenedor de categorías */}
+      <div className="relative min-h-[200px]">
+        {" "}
+        {/* Ajusta la altura mínima para hacer visible el loading */}
+        {isLoading ? (
+          <LoadingModal
+            isLoading={isLoading}
+            message="Cargando categorías..."
+            overlay={false} // Aquí especificamos que no debe cubrir toda la pantalla
+          />
+        ) : (
+          <CategoryList
+            categories={categories}
+            editCategory={editCategory}
+            expandedCategory={expandedCategory}
+            toggleCategoryCollapse={toggleCategoryCollapse}
+            handleEditCategory={handleEditCategory}
+            handleSaveCategory={handleSaveCategory}
+            cancelEditCategory={cancelEditCategory}
+            handleDeleteCategory={handleDeleteCategory}
+            handleDeleteSubcategory={handleDeleteSubcategory}
+            editSubcategory={editSubcategory}
+            handleEditSubcategory={handleEditSubcategory}
+            handleSaveSubcategory={handleSaveSubcategory}
+            cancelEditSubcategory={cancelEditSubcategory}
+            newCategoryName={newCategoryName}
+            setNewCategoryName={setNewCategoryName}
+            newSubcategoryName={newSubcategoryName}
+            setNewSubcategoryName={setNewSubcategoryName}
+          />
+        )}
+      </div>
 
-      {/* Modal de carga */}
-      <LoadingModal isLoading={isSubmitting} />
+      {/* Loading global superpuesto para acciones de envío */}
+      <LoadingModal
+        isLoading={isSubmitting}
+        message="Guardando cambios..."
+        overlay={true} // Loading global superpuesto
+      />
     </div>
   );
 };
