@@ -154,24 +154,36 @@ const PersonPanel = () => {
         message={confirmDialog.message}
       />
 
-      {/* Cargar lista de categorías */}
-      {isLoading ? (
-        <LoadingModal isLoading={isLoading} />
-      ) : (
-        <PeopleList
-          persons={persons}
-          editPerson={editPerson}
-          handleEditPerson={handleEditPerson}
-          handleSavePerson={handleSavePerson}
-          cancelEditPerson={cancelEditPerson}
-          handleDeletePerson={handleDeletePerson}
-          newPersonName={newPersonName}
-          setNewPersonName={setNewPersonName}
-        />
-      )}
+      {/* Cargar lista de personas */}
+      <div className="relative min-h-[200px]">
+        {" "}
+        {/* Ajusta la altura mínima para hacer visible el loading */}
+        {isLoading ? (
+          <LoadingModal
+            isLoading={isLoading}
+            message="Cargando personas..."
+            overlay={false} // Aquí especificamos que no debe cubrir toda la pantalla
+          />
+        ) : (
+          <PeopleList
+            persons={persons}
+            editPerson={editPerson}
+            handleEditPerson={handleEditPerson}
+            handleSavePerson={handleSavePerson}
+            cancelEditPerson={cancelEditPerson}
+            handleDeletePerson={handleDeletePerson}
+            newPersonName={newPersonName}
+            setNewPersonName={setNewPersonName}
+          />
+        )}
+      </div>
 
-      {/* Modal de carga */}
-      <LoadingModal isLoading={isSubmitting} />
+      {/* Loading global superpuesto para acciones de envío */}
+      <LoadingModal
+        isLoading={isSubmitting}
+        message="Guardando cambios..."
+        overlay={true} // Loading global superpuesto
+      />
     </div>
   );
 };
