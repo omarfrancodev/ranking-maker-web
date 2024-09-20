@@ -38,6 +38,7 @@ const PersonPanel = () => {
       addNotification("error", "Error al cargar a las personas");
     }
     setIsLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

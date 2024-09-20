@@ -9,13 +9,8 @@ const Dialog = ({ isOpen, onClose, children, title, description }) => {
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="bg-black bg-opacity-50 fixed inset-0" />
         <DialogPrimitive.Content
-          className="bg-white p-6 rounded-md shadow-lg fixed inset-0 m-auto"
+          className="bg-white min-w-min max-h-max max-w-max p-6 rounded-md shadow-lg fixed inset-0 m-2 md:m-auto"
           style={{
-            width: "max-content",
-            height: "max-content",
-            minWidth: "20%",
-            maxHeight: "80%",
-            maxWidth: "50%",
             overflowY: "auto",
           }}
         >
