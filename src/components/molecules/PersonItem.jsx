@@ -3,7 +3,7 @@ import { Edit, Trash, Save, X } from "lucide-react";
 import Button from "../atoms/Button";
 import Input from "../atoms/Input";
 
-const CategoryItem = ({
+const PersonItem = ({
   person,
   editPerson,
   handleEditPerson,
@@ -71,4 +71,4 @@ const CategoryItem = ({
   );
 };
 
-export default CategoryItem;
+export default PersonItem;
