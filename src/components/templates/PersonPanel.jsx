@@ -25,6 +25,7 @@ const PersonPanel = () => {
   });
   const [newPersonName, setNewPersonName] = useState("");
   const [editPerson, setEditPerson] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // Acceder a las funciones de notificación
   const { addNotification } = useNotification();
@@ -73,6 +74,7 @@ const PersonPanel = () => {
   const handleEditPerson = (personName) => {
     setEditPerson(personName);
     setNewPersonName(personName);
+    setIsEditMode(true);
   };
 
   const handleSavePerson = async (oldName, personId) => {
@@ -96,6 +98,7 @@ const PersonPanel = () => {
       addNotification("error", `Error al actualizar a la persona: ${error}`);
     }
     setEditPerson(null);
+    setIsEditMode(false);
     setIsSubmitting(false);
   };
 
@@ -122,17 +125,19 @@ const PersonPanel = () => {
   const cancelEditPerson = () => {
     setEditPerson(null);
     setNewPersonName("");
+    setIsEditMode(false);
   };
 
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Administrar Personas</h2>
       <Button
-        className="flex justify-between items-center bg-success text-white"
+        className="flex justify-between items-center gap-x-2 bg-success text-white"
         onClick={() => setIsDialogOpen(true)}
+        disabled={isEditMode}
       >
+        Agregar Persona
         <Plus className="w-5 h-5" />
-        Agregar Nuevo
       </Button>
 
       {/* Diálogo para agregar personas */}
