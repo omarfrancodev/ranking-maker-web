@@ -5,7 +5,7 @@ import { ChevronDown } from "lucide-react";
 const Select = ({
   label,
   value,
-  onChange, // onChange ahora manejará el valor directamente
+  onChange,
   options,
   placeholder = "Seleccione una opción",
 }) => {
@@ -32,7 +32,7 @@ const Select = ({
       <SelectPrimitive.Root value={value} onValueChange={onChange}>
         <SelectPrimitive.Trigger
           ref={triggerRef}
-          className="w-full border border-gray-300 rounded-md py-2 px-3 flex justify-between items-center"
+          className="w-full border border-gray-300 rounded-md p-2 md:py-2 md:px-3 flex justify-between items-center"
         >
           <SelectPrimitive.Value placeholder={placeholder} />
           <SelectPrimitive.Icon className="ml-2">
@@ -47,28 +47,38 @@ const Select = ({
             position="popper"
           >
             {/* Campo de búsqueda */}
-            <div className="px-3 py-2 border-b">
+            <div className="px-3 py-2 w-full border-b">
               <input
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)} // Esto maneja el evento de input
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Buscar..."
                 className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
 
             {filteredOptions.length > 0 ? (
-              filteredOptions.map((option, index) => (
-                <SelectPrimitive.Item
-                  key={index} // Generamos una clave única para cada elemento
-                  value={typeof option === "string" ? option : option.value}
-                  className="py-2 px-4 cursor-pointer hover:bg-gray-100"
-                >
-                  <SelectPrimitive.ItemText>
-                    {typeof option === "string" ? option : option.label}
-                  </SelectPrimitive.ItemText>
-                </SelectPrimitive.Item>
-              ))
+              filteredOptions.map((option, index) => {
+                const optionValue =
+                  typeof option === "string" ? option : option.value;
+
+                // Evitar valores vacíos para SelectPrimitive.Item
+                if (!optionValue) {
+                  return null; // Ignorar elementos sin valor
+                }
+
+                return (
+                  <SelectPrimitive.Item
+                    key={index}
+                    value={optionValue}
+                    className="py-2 px-4 cursor-pointer hover:bg-gray-100"
+                  >
+                    <SelectPrimitive.ItemText>
+                      {typeof option === "string" ? option : option.label}
+                    </SelectPrimitive.ItemText>
+                  </SelectPrimitive.Item>
+                );
+              })
             ) : (
               <div className="py-2 px-4 text-gray-500">
                 No se encontraron opciones
