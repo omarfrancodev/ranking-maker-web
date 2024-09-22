@@ -1,14 +1,20 @@
 import React from "react";
 
-const TagSelect = ({ label, value, onChange, options }) => {
+const TagSelect = ({
+  label,
+  value,
+  onChange,
+  options,
+  nonRemovableIds = [],
+}) => {
   const handleCheckboxChange = (e) => {
     const selectedValue = e.target.value;
 
     if (e.target.checked) {
       onChange([...value, selectedValue]); // Añadir subcategoría seleccionada
     } else {
-      // Evitar que se deseleccione "General"
-      if (selectedValue !== "General") {
+      // Evitar que se deseleccione alguna subcategoría de la lista "nonRemovableIds"
+      if (!nonRemovableIds.includes(selectedValue)) {
         onChange(value.filter((val) => val !== selectedValue)); // Eliminar subcategoría deseleccionada
       }
     }
@@ -22,11 +28,11 @@ const TagSelect = ({ label, value, onChange, options }) => {
           <label key={option.value} className="flex items-center space-x-2">
             <input
               type="checkbox"
-              value={option.label}
-              checked={value.includes(option.label)}
+              value={option.value}
+              checked={value.includes(option.value)}
               onChange={handleCheckboxChange}
               className="form-checkbox h-4 w-4 text-indigo-600"
-              disabled={option.label === "General"} // Deshabilitar el checkbox si es "General"
+              disabled={nonRemovableIds.includes(option.value)} // Deshabilitar el checkbox si está en "nonRemovableIds"
             />
             <span>{option.label}</span>
           </label>
