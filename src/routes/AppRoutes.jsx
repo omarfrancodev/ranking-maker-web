@@ -10,7 +10,7 @@ import { Tv, List, PieChart, Eye, Settings } from "lucide-react"; // Importamos 
 
 const AppRoutes = () => {
   const tabs = [
-    { path: "/", label: "Shows", icon: Tv },
+    { path: "/", label: "Content", icon: Tv },
     { path: "/rankings", label: "Rankings", icon: List },
     { path: "/charts", label: "Gráficas", icon: PieChart },
     { path: "/views", label: "Vistas", icon: Eye },
@@ -23,7 +23,7 @@ const AppRoutes = () => {
         <TabsLink tabs={tabs} />
         <Routes>
           <Route
-            path={tabs.find((t) => t.label === "Shows").path}
+            path={tabs.find((t) => t.label === "Content").path}
             element={<HomePage />}
           />
           <Route

@@ -4,7 +4,7 @@ import * as Tabs from "@radix-ui/react-tabs";
 const TabsComponent = ({ tabs, currentTab, setCurrentTab }) => {
   return (
     <Tabs.Root value={currentTab} onValueChange={setCurrentTab}>
-      <Tabs.List className="flex space-x-2 bg-gray-100 p-2 rounded-md w-min">
+      <Tabs.List className="flex space-x-2 bg-gray-100 p-2 rounded-md w-min shadow">
         {tabs.map((tab) => (
           <Tabs.Trigger
             key={tab.value}

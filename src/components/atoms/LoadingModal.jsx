@@ -16,7 +16,9 @@ const LoadingModal = ({
           : "absolute w-full h-full"
       } flex justify-center items-center`}
     >
-      <div className="bg-white p-4 rounded flex items-center space-x-2">
+      <div
+        className={`${overlay ? "bg-white" : "bg-transparent"} p-4 rounded flex items-center space-x-2`}
+      >
         <Loader className="animate-spin w-6 h-6 text-blue-500" />
         <span>{message}</span>
       </div>
