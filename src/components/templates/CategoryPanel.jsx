@@ -56,6 +56,7 @@ const CategoryPanel = () => {
 
   const handleAddNew = async () => {
     setIsSubmitting(true);
+
     if (newItemType === "Categoría") {
       if (!newCategoryName) {
         addNotification(
@@ -66,11 +67,26 @@ const CategoryPanel = () => {
         return;
       }
       try {
-        await createCategory(newCategoryName);
+        // Crear la categoría
+        const newCategoryResponse = await createCategory(newCategoryName);
         addNotification("success", `Categoría "${newCategoryName}" agregada`);
+
+        // Crear la subcategoría 'General' para la nueva categoría
+        const newCategoryId = newCategoryResponse.data.id;
+        await createSubcategory("General", newCategoryId);
+
+        addNotification(
+          "success",
+          `Subcategoría "General" agregada a "${newCategoryName}"`
+        );
+
+        // Recargar categorías
         loadCategories();
       } catch (error) {
-        addNotification("error", `Error al agregar categoría: ${error}`);
+        addNotification(
+          "error",
+          `Error al agregar categoría o subcategoría: ${error}`
+        );
       }
     } else if (newItemType === "Subcategoría") {
       if (!selectedCategory) {
@@ -100,6 +116,7 @@ const CategoryPanel = () => {
         addNotification("error", `Error al agregar subcategoría: ${error}`);
       }
     }
+
     setIsSubmitting(false);
     setIsDialogOpen(false);
     setNewCategoryName("");
@@ -282,7 +299,7 @@ const CategoryPanel = () => {
       />
 
       {/* Contenedor de categorías */}
-      <div className="relative min-h-[200px]">
+      <div className="relative min-h-52">
         {" "}
         {/* Ajusta la altura mínima para hacer visible el loading */}
         {isLoading ? (

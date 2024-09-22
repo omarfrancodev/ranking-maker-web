@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 
 const TabsLinks = ({ tabs }) => {
   return (
-    <div className="flex justify-between space-x-1 bg-white p-2 rounded-lg mb-4">
+    <div className="flex justify-between space-x-1 bg-white p-2 md:rounded-lg md:mb-4 md:shadow-md">
       {tabs.map((tab) => (
         <NavLink
           key={tab.path}

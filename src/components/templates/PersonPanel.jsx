@@ -69,7 +69,7 @@ const PersonPanel = () => {
     setNewPersonName("");
   };
 
-  // Función para editar categorías
+  // Función para editar personas
   const handleEditPerson = (personName) => {
     setEditPerson(personName);
     setNewPersonName(personName);
@@ -86,7 +86,7 @@ const PersonPanel = () => {
       return;
     }
     try {
-      await updatePerson(personId, newPersonName); // Actualizar categoría
+      await updatePerson(personId, newPersonName); // Actualizar persona
       addNotification(
         "success",
         `Persona "${oldName}" actualizada a "${newPersonName}"`
@@ -99,7 +99,7 @@ const PersonPanel = () => {
     setIsSubmitting(false);
   };
 
-  // Función para eliminar categoría
+  // Función para eliminar persona
   const handleDeletePerson = (personId, personName) => {
     setConfirmDialog({
       isOpen: true,
@@ -107,7 +107,7 @@ const PersonPanel = () => {
       action: async () => {
         setIsSubmitting(true);
         try {
-          await deletePerson(personId); // Eliminar categoría de la API
+          await deletePerson(personId); // Eliminar persona de la API
           addNotification("info", `Persona "${personName}" eliminada`);
           loadPersons();
         } catch (error) {
@@ -135,7 +135,7 @@ const PersonPanel = () => {
         Agregar Nuevo
       </Button>
 
-      {/* Diálogo para agregar categorías o subcategorías */}
+      {/* Diálogo para agregar personas */}
       <AddPersonDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
@@ -154,24 +154,36 @@ const PersonPanel = () => {
         message={confirmDialog.message}
       />
 
-      {/* Cargar lista de categorías */}
-      {isLoading ? (
-        <LoadingModal isLoading={isLoading} />
-      ) : (
-        <PeopleList
-          persons={persons}
-          editPerson={editPerson}
-          handleEditPerson={handleEditPerson}
-          handleSavePerson={handleSavePerson}
-          cancelEditPerson={cancelEditPerson}
-          handleDeletePerson={handleDeletePerson}
-          newPersonName={newPersonName}
-          setNewPersonName={setNewPersonName}
-        />
-      )}
+      {/* Cargar lista de personas */}
+      <div className="relative min-h-[200px]">
+        {" "}
+        {/* Ajusta la altura mínima para hacer visible el loading */}
+        {isLoading ? (
+          <LoadingModal
+            isLoading={isLoading}
+            message="Cargando personas..."
+            overlay={false} // Aquí especificamos que no debe cubrir toda la pantalla
+          />
+        ) : (
+          <PeopleList
+            persons={persons}
+            editPerson={editPerson}
+            handleEditPerson={handleEditPerson}
+            handleSavePerson={handleSavePerson}
+            cancelEditPerson={cancelEditPerson}
+            handleDeletePerson={handleDeletePerson}
+            newPersonName={newPersonName}
+            setNewPersonName={setNewPersonName}
+          />
+        )}
+      </div>
 
-      {/* Modal de carga */}
-      <LoadingModal isLoading={isSubmitting} />
+      {/* Loading global superpuesto para acciones de envío */}
+      <LoadingModal
+        isLoading={isSubmitting}
+        message="Guardando cambios..."
+        overlay={true} // Loading global superpuesto
+      />
     </div>
   );
 };
