@@ -17,11 +17,11 @@ const CategoryItem = ({
   ...subcategoryProps
 }) => {
   return (
-    <li key={category.id} className="border-b">
+    <div key={category.id} className="rounded-lg shadow">
       <div
         className={`flex justify-between p-2 items-center align-middle cursor-pointe  ${
           expandedCategory === category.name
-            ? "bg-blue-200 bg-opacity-75"
+            ? "bg-blue-200 bg-opacity-75 rounded-t-lg"
             : "hover:bg-blue-200 hover:bg-opacity-25"
         }`}
         onClick={() => toggleCategoryCollapse(category.name)}
@@ -92,7 +92,7 @@ const CategoryItem = ({
       </div>
 
       {expandedCategory === category.name && subcategories.length > 0 && (
-        <ul className="ml-4 mt-2 h-min">
+        <div className="grid grid-cols-1 gap-2 h-min">
           {subcategories.map((subcategory, index) => (
             <SubcategoryItem
               key={subcategory.subcategory_id} // Asegúrate de usar el `subcategory_id` como clave
@@ -102,9 +102,9 @@ const CategoryItem = ({
               {...subcategoryProps}
             />
           ))}
-        </ul>
+        </div>
       )}
-    </li>
+    </div>
   );
 };
 

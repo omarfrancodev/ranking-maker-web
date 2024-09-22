@@ -5,7 +5,7 @@ const CategoryList = (props) => {
   const { categories } = props;
 
   return (
-    <ul className="space-y-4 mt-6">
+    <div className="grid grid-cols-1 gap-4 mt-4">
       {categories.map((category) => (
         <CategoryItem
           key={category.name}
@@ -14,7 +14,7 @@ const CategoryList = (props) => {
           {...props}
         />
       ))}
-    </ul>
+    </div>
   );
 };
 

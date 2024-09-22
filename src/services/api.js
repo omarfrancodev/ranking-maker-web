@@ -5,7 +5,6 @@ const API_URL = process.env.REACT_APP_API_URL;
 // Función auxiliar para manejar respuestas exitosas
 const handleSuccess = (response) => {
   if (response.data && response.data.data) {
-    console.log(response.data.data); // Imprimir en consola el valor de response.data.data
   }
   return response.data;
 };
@@ -137,6 +136,73 @@ export const updatePerson = async (personId, name) => {
 export const deletePerson = async (personId) => {
   try {
     const response = await axios.delete(`${API_URL}/persons/${personId}/`);
+    return handleSuccess(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+// Fetch all contents
+export const fetchContents = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/contents/`);
+    return handleSuccess(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+// Create new content
+export const createContent = async (contentData) => {
+  try {
+    const response = await axios.post(`${API_URL}/contents/`, contentData);
+    return handleSuccess(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+// Filter contents with query params
+export const filterContents = async (filters = {}) => {
+  try {
+    const params = new URLSearchParams(filters).toString();
+    const response = await axios.get(`${API_URL}/contents/filter/?${params}`);
+    return handleSuccess(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+// Fetch contents with viewings
+export const fetchContentsWithViewings = async (filters = {}) => {
+  try {
+    const params = new URLSearchParams(filters).toString();
+    const response = await axios.get(
+      `${API_URL}/contents/with-viewings/?${params}`
+    );
+    return handleSuccess(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+// Update content by id (PUT/PATCH)
+export const updateContent = async (contentId, contentData) => {
+  try {
+    const response = await axios.patch(
+      `${API_URL}/contents/${contentId}/`,
+      contentData
+    );
+    return handleSuccess(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+// Delete content by id
+export const deleteContent = async (contentId) => {
+  try {
+    const response = await axios.delete(`${API_URL}/contents/${contentId}/`);
     return handleSuccess(response);
   } catch (error) {
     handleError(error);

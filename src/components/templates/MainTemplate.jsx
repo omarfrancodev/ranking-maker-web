@@ -3,10 +3,10 @@ import React from "react";
 const MainTemplate = ({ title = "", className = "bg-white", children }) => {
   return (
     <div
-      className={`container mx-auto h-full p-4 shadow-md rounded-md" ${className}`}
+      className={`mx-0 my-auto md:mx-auto w-full min-h-screen max-h-max px-0 md:p-4 shadow-md rounded-md" ${className}`}
     >
       {title !== "" && (
-        <h1 className="text-3xl font-bold mb-4 text-center text-titleBlue">
+        <h1 className="text-3xl font-bold my-2 md:mb-4 text-center text-titleBlue">
           {title}
         </h1>
       )}

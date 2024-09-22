@@ -1,11 +1,17 @@
 import React from "react";
+import PageTemplate from "../components/atoms/PageTemplate";
+import ContentPanel from "../components/templates/ContentPanel";
 
 const HomePage = () => {
   return (
-    <div>
-      <h1>Comming soon (Manage Shows)</h1>
-      {/* Aquí agregarás el contenido principal más tarde */}
-    </div>
+    <PageTemplate
+      titleBg="bg-indigo-700"
+      title="Gestionar contenido"
+      subtileColor="text-gray-200"
+      subtitle="Añadir nuevos programas, peliculas y variedad de contenidos, y asignar espectadores"
+    >
+      <ContentPanel />
+    </PageTemplate>
   );
 };
 

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import CategoryPanel from "../components/templates/CategoryPanel";
 import PersonPanel from "../components/templates/PersonPanel";
 import TabsComponent from "../components/molecules/TabsComponent";
+import PageTemplate from "../components/atoms/PageTemplate";
 
 const SettingsPage = () => {
   const [currentTab, setCurrentTab] = useState("categorias");
@@ -17,19 +18,17 @@ const SettingsPage = () => {
   ];
 
   return (
-    <div className="bg-stone-50 rounded-lg overflow-auto">
-      <div className="bg-gray-700 space-y-3 text-white p-6">
-        <h2 className="text-2xl font-bold">Configuración</h2>
-        <p className="text-gray-300">Gestionar categorías y personas</p>
-      </div>
-      <div className="overflow-auto max-h-md p-6">
-        <TabsComponent
-          tabs={tabs}
-          currentTab={currentTab}
-          setCurrentTab={setCurrentTab}
-        />
-      </div>
-    </div>
+    <PageTemplate
+      titleBg="bg-gray-700"
+      title="Configuración"
+      subtitle="Gestionar categorías y personas"
+    >
+      <TabsComponent
+        tabs={tabs}
+        currentTab={currentTab}
+        setCurrentTab={setCurrentTab}
+      />
+    </PageTemplate>
   );
 };
 

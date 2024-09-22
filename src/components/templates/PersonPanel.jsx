@@ -69,7 +69,7 @@ const PersonPanel = () => {
     setNewPersonName("");
   };
 
-  // Función para editar categorías
+  // Función para editar personas
   const handleEditPerson = (personName) => {
     setEditPerson(personName);
     setNewPersonName(personName);
@@ -86,7 +86,7 @@ const PersonPanel = () => {
       return;
     }
     try {
-      await updatePerson(personId, newPersonName); // Actualizar categoría
+      await updatePerson(personId, newPersonName); // Actualizar persona
       addNotification(
         "success",
         `Persona "${oldName}" actualizada a "${newPersonName}"`
@@ -99,7 +99,7 @@ const PersonPanel = () => {
     setIsSubmitting(false);
   };
 
-  // Función para eliminar categoría
+  // Función para eliminar persona
   const handleDeletePerson = (personId, personName) => {
     setConfirmDialog({
       isOpen: true,
@@ -107,7 +107,7 @@ const PersonPanel = () => {
       action: async () => {
         setIsSubmitting(true);
         try {
-          await deletePerson(personId); // Eliminar categoría de la API
+          await deletePerson(personId); // Eliminar persona de la API
           addNotification("info", `Persona "${personName}" eliminada`);
           loadPersons();
         } catch (error) {
@@ -135,7 +135,7 @@ const PersonPanel = () => {
         Agregar Nuevo
       </Button>
 
-      {/* Diálogo para agregar categorías o subcategorías */}
+      {/* Diálogo para agregar personas */}
       <AddPersonDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
