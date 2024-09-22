@@ -111,6 +111,9 @@ const ContentPanel = () => {
 
   return (
     <div>
+      <p className=" text-lg mb-2">
+        Seleccione una categoría para mostrar el contenido disponible
+      </p>
       <div className="flex justify-between items-center space-x-2 mb-4">
         <div className="flex space-x-4">
           <Select
@@ -143,15 +146,14 @@ const ContentPanel = () => {
           )}
         </div>
         <Button
-          className="flex justify-between items-center mb-4 bg-success space-x-2 text-white"
+          className="flex items-center mb-4 bg-success space-x-2 text-white"
           onClick={() => setIsDialogOpen(true)}
           disabled={isLoadingCategories || categories.length === 0}
         >
+          <span className="hidden md:inline">Agregar contenido</span>
           <Plus className="w-5 h-5" />
-          <span className="hidden md:inline">Añadir nuevo contenido</span>
         </Button>
       </div>
-
       <div className="relative min-h-[200px]">
         {isLoadingShows ? (
           <LoadingModal
@@ -169,7 +171,6 @@ const ContentPanel = () => {
           />
         )}
       </div>
-
       {/* ConfirmDialog para eliminar */}
       <ConfirmDialog
         isOpen={confirmDialog.isOpen}
@@ -179,14 +180,14 @@ const ContentPanel = () => {
         onConfirm={confirmDelete}
         message={`¿Estás seguro de que deseas eliminar el contenido "${confirmDialog.showName}"?`} // Mostrar el nombre
       />
-
       {/* Modal para añadir o editar show */}
       <AddContentDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         categories={categories}
         editShow={editShow}
-        onSave={handleSaveShow}
+        onSaveShow={handleSaveShow} // Cambiar "onSave" a "onSaveShow"
+        onAddShow={loadShows} // Añadir "onAddShow" para recargar contenidos después de añadir uno nuevo
       />
     </div>
   );

@@ -31,6 +31,7 @@ const CategoryPanel = () => {
   const [newSubcategoryName, setNewSubcategoryName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [editCategory, setEditCategory] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [editSubcategory, setEditSubcategory] = useState(null);
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [isToggleDisabled, setIsToggleDisabled] = useState(false);
@@ -128,6 +129,7 @@ const CategoryPanel = () => {
     setEditCategory(categoryName);
     setNewCategoryName(categoryName);
     setIsToggleDisabled(true);
+    setIsEditMode(true);
   };
 
   const handleSaveCategory = async (oldName, categoryId) => {
@@ -151,6 +153,7 @@ const CategoryPanel = () => {
       addNotification("error", `Error al actualizar la categoría: ${error}`);
     }
     setEditCategory(null);
+    setIsEditMode(false);
     setIsToggleDisabled(false);
     setIsSubmitting(false);
   };
@@ -161,6 +164,7 @@ const CategoryPanel = () => {
       category: categoryName,
       subcategory: subcategoryName,
     });
+    setIsEditMode(true);
     setNewSubcategoryName(subcategoryName);
     setIsToggleDisabled(true);
   };
@@ -190,6 +194,7 @@ const CategoryPanel = () => {
       addNotification("error", `Error al actualizar la subcategoría: ${error}`);
     }
     setEditSubcategory(null);
+    setIsEditMode(false);
     setIsToggleDisabled(false);
     setIsSubmitting(false);
   };
@@ -242,12 +247,14 @@ const CategoryPanel = () => {
 
   const cancelEditCategory = () => {
     setEditCategory(null);
+    setIsEditMode(false);
     setNewCategoryName("");
     setIsToggleDisabled(false);
   };
 
   const cancelEditSubcategory = () => {
     setEditSubcategory(null);
+    setIsEditMode(false);
     setNewSubcategoryName("");
     setIsToggleDisabled(false);
   };
@@ -265,11 +272,12 @@ const CategoryPanel = () => {
     <div>
       <h2 className="text-xl font-semibold mb-4">Administrar Categorias</h2>
       <Button
-        className="flex justify-between items-center bg-success text-white"
+        className="flex justify-between items-center gap-x-2 bg-success text-white"
         onClick={() => setIsDialogOpen(true)}
+        disabled={isEditMode}
       >
-        <Plus className="w-5 h-5" />
         Agregar Nuevo
+        <Plus className="w-5 h-5" />
       </Button>
 
       {/* Diálogo para agregar categorías o subcategorías */}

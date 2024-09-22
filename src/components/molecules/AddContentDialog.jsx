@@ -3,7 +3,7 @@ import Dialog from "../atoms/Dialog";
 import Input from "../atoms/Input";
 import Select from "../atoms/Select";
 import Button from "../atoms/Button";
-import { createContent } from "../../services/api";
+import { createContent, updateContent } from "../../services/api";
 import TagSelect from "../atoms/TagSelect";
 import { useNotification } from "../../context/NotificationContext";
 
@@ -11,22 +11,32 @@ const AddContentDialog = ({
   isOpen,
   onClose,
   categories,
-  onAddShow,
-  editShow,
-  onSaveShow,
+  onAddShow, // Función para recargar los contenidos
+  editShow, // Contenido que se está editando
+  onSaveShow, // Función para guardar los cambios al editar
 }) => {
   const [showName, setShowName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategories, setSelectedSubcategories] = useState([]);
+  const [nonRemovableIds, setNonRemovableIds] = useState([]);
 
   const { addNotification } = useNotification();
 
+  // Manejar la edición del contenido
   useEffect(() => {
     if (editShow) {
       setShowName(editShow.name);
       setSelectedCategory(editShow.category.id);
       setSelectedSubcategories(editShow.subcategories.map((sub) => sub.id));
+    } else {
+      setShowName("");
+      setSelectedCategory("");
+      setSelectedSubcategories([]);
     }
+  }, [editShow]);
+
+  // Controlar la selección de la subcategoría "General"
+  useEffect(() => {
     if (selectedCategory && selectedCategory !== "") {
       const category = categories.find((cat) => cat.id === selectedCategory);
       const generalSubcategory = category?.subcategories.find(
@@ -34,11 +44,20 @@ const AddContentDialog = ({
       );
 
       if (generalSubcategory) {
-        setSelectedSubcategories([generalSubcategory.name]); // Forzar que "General" esté seleccionada
+        setSelectedSubcategories((prev) => {
+          if (!prev.includes(generalSubcategory.subcategory_id)) {
+            return [...prev, generalSubcategory.subcategory_id];
+          }
+          return prev;
+        });
+        setNonRemovableIds([generalSubcategory.subcategory_id]);
+      } else {
+        setNonRemovableIds([]);
       }
     }
-  }, [selectedCategory, categories, editShow]);
+  }, [selectedCategory, categories]);
 
+  // Manejar la creación o actualización de contenido
   const handleAddOrUpdateShow = async () => {
     if (!showName || !selectedCategory) {
       addNotification(
@@ -54,26 +73,27 @@ const AddContentDialog = ({
       subcategories: selectedSubcategories,
     };
 
-    if (editShow) {
-      // Modo edición
-      onSaveShow({ ...editShow, ...payload });
-    } else {
-      // Modo creación
-      try {
+    try {
+      if (editShow) {
+        await updateContent(editShow.id, payload);
+        onSaveShow(payload);
+      } else {
         await createContent(payload);
         addNotification(
           "success",
           `Contenido "${showName}" agregado exitosamente.`
         );
-        onAddShow(); // Recargar shows
-        onClose();
-      } catch (error) {
-        addNotification(
-          "error",
-          `Error al añadir contenido: ${error.response?.data?.message || error.message}`
-        );
-        console.error("Error al añadir contenido:", error);
+        onAddShow(); // Recargar shows después de añadir uno nuevo
       }
+      onClose();
+    } catch (error) {
+      addNotification(
+        "error",
+        `Error al ${editShow ? "actualizar" : "añadir"} contenido: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+      console.error("Error al añadir/actualizar contenido:", error);
     }
   };
 
@@ -113,6 +133,7 @@ const AddContentDialog = ({
                 value: sub.subcategory_id,
               })) || []
           }
+          nonRemovableIds={nonRemovableIds} // Pasar IDs que no se pueden deseleccionar
         />
       )}
 
@@ -121,7 +142,7 @@ const AddContentDialog = ({
           className="bg-success text-white mt-4"
           onClick={handleAddOrUpdateShow}
         >
-          {editShow ? "Editar contenido" : "Añadir nuevo contenido"}
+          {editShow ? "Guardar cambios" : "Añadir nuevo contenido"}
         </Button>
       </div>
     </Dialog>
