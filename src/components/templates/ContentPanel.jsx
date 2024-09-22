@@ -1,4 +1,3 @@
-// src/components/templates/ContentPanel.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import ContentList from "../organisms/ContentList";
 import AddContentDialog from "../molecules/AddContentDialog";
@@ -111,38 +110,53 @@ const ContentPanel = () => {
 
   return (
     <div>
-      <p className=" text-lg mb-2">
+      <p className="text-lg mb-2">
         Seleccione una categoría para mostrar el contenido disponible
       </p>
+
+      {/* Mostrar loading de categorías o los selectores cuando estén cargadas */}
       <div className="flex justify-between items-center space-x-2 mb-4">
         <div className="flex space-x-4">
-          <Select
-            label="Categoría"
-            value={selectedCategory}
-            onChange={(value) => {
-              setSelectedCategory(value);
-              setSelectedSubcategory("");
-            }}
-            options={[
-              { label: "Todos", value: "all" },
-              ...categories.map((cat) => ({ label: cat.name, value: cat.id })),
-            ]}
-          />
-
-          {selectedCategory && selectedCategory !== "all" && (
-            <Select
-              label="Subcategoría"
-              value={selectedSubcategory}
-              onChange={(value) => setSelectedSubcategory(value)}
-              options={
-                categories
-                  .find((cat) => cat.id === selectedCategory)
-                  ?.subcategories.map((sub) => ({
-                    label: sub.name,
-                    value: sub.subcategory_id,
-                  })) || []
-              }
+          {isLoadingCategories ? (
+            <LoadingModal
+              isLoading={isLoadingCategories}
+              message="Cargando datos necesarios..."
+              overlay={false}
             />
+          ) : (
+            <>
+              <Select
+                label="Categoría"
+                value={selectedCategory}
+                onChange={(value) => {
+                  setSelectedCategory(value);
+                  setSelectedSubcategory("");
+                }}
+                options={[
+                  { label: "Todos", value: "all" },
+                  ...categories.map((cat) => ({
+                    label: cat.name,
+                    value: cat.id,
+                  })),
+                ]}
+              />
+
+              {selectedCategory && selectedCategory !== "all" && (
+                <Select
+                  label="Subcategoría"
+                  value={selectedSubcategory}
+                  onChange={(value) => setSelectedSubcategory(value)}
+                  options={
+                    categories
+                      .find((cat) => cat.id === selectedCategory)
+                      ?.subcategories.map((sub) => ({
+                        label: sub.name,
+                        value: sub.subcategory_id,
+                      })) || []
+                  }
+                />
+              )}
+            </>
           )}
         </div>
         <Button
@@ -154,6 +168,7 @@ const ContentPanel = () => {
           <Plus className="w-5 h-5" />
         </Button>
       </div>
+
       <div className="relative min-h-[200px]">
         {isLoadingShows ? (
           <LoadingModal
@@ -171,6 +186,7 @@ const ContentPanel = () => {
           />
         )}
       </div>
+
       {/* ConfirmDialog para eliminar */}
       <ConfirmDialog
         isOpen={confirmDialog.isOpen}
@@ -180,6 +196,7 @@ const ContentPanel = () => {
         onConfirm={confirmDelete}
         message={`¿Estás seguro de que deseas eliminar el contenido "${confirmDialog.showName}"?`} // Mostrar el nombre
       />
+
       {/* Modal para añadir o editar show */}
       <AddContentDialog
         isOpen={isDialogOpen}
