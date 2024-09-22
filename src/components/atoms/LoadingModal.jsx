@@ -1,6 +1,6 @@
-import React from "react";
 import { Loader } from "lucide-react";
 
+// Modificar el componente LoadingModal para permitir una versión inline
 const LoadingModal = ({
   isLoading,
   message = "Cargando...",
@@ -8,19 +8,24 @@ const LoadingModal = ({
 }) => {
   if (!isLoading) return null;
 
+  // Si overlay es falso, hacer que ocupe el espacio como un div normal.
+  if (!overlay) {
+    return (
+      <div className="flex items-center justify-center w-full py-2">
+        <div className="text-gray-700 flex items-center space-x-2">
+          <Loader className="animate-spin w-6 h-6 text-blue-500" />
+          <p>{message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Si es con overlay (posición fija sobre toda la pantalla)
   return (
-    <div
-      className={`${
-        overlay
-          ? "fixed inset-0 z-50 bg-gray-900 bg-opacity-50 "
-          : "absolute w-full h-full"
-      } flex justify-center items-center`}
-    >
-      <div
-        className={`${overlay ? "bg-white" : "bg-transparent"} p-4 rounded flex items-center space-x-2`}
-      >
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-4 rounded shadow-lg text-center flex items-center space-x-2">
         <Loader className="animate-spin w-6 h-6 text-blue-500" />
-        <span>{message}</span>
+        <p>{message}</p>
       </div>
     </div>
   );
