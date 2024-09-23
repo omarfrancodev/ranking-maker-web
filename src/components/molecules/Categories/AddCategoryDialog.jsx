@@ -1,7 +1,7 @@
-import Dialog from "../atoms/Dialog";
-import Input from "../atoms/Input";
-import Select from "../atoms/Select";
-import Button from "../atoms/Button";
+import Dialog from "../../atoms/Dialog";
+import Input from "../../atoms/Input";
+import Select from "../../atoms/Select";
+import Button from "../../atoms/Button";
 
 const AddCategoryDialog = ({
   isOpen,

@@ -4,7 +4,7 @@ import ConfirmDialog from "../molecules/ConfirmDialog";
 import CategoryList from "../organisms/CategoryList";
 import LoadingModal from "../atoms/LoadingModal";
 import { useNotification } from "../../context/NotificationContext";
-import AddCategoryDialog from "../molecules/AddCategoryDialog"; // Importar el nuevo diálogo
+import AddCategoryDialog from "../molecules/Categories/AddCategoryDialog"; // Importar el nuevo diálogo
 import { Plus } from "lucide-react";
 import {
   fetchCategoriesWithSubcategories,
@@ -156,6 +156,7 @@ const CategoryPanel = () => {
     setIsEditMode(false);
     setIsToggleDisabled(false);
     setIsSubmitting(false);
+    setNewCategoryName("");
   };
 
   // Función para editar subcategorías
@@ -197,6 +198,7 @@ const CategoryPanel = () => {
     setIsEditMode(false);
     setIsToggleDisabled(false);
     setIsSubmitting(false);
+    setNewSubcategoryName("");
   };
 
   // Función para eliminar categoría

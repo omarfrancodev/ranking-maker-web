@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle, Info, AlertTriangle, XCircle } from "lucide-react";
+import * as ToastPrimitive from "@radix-ui/react-toast";
 
-const Notification = ({
-  message,
-  type = "info",
-  duration = 3000,
-  onClose,
-  offset,
-}) => {
-  const [progress, setProgress] = useState(100);
+const Notification = ({ message, type = "info", duration = 3000, onClose }) => {
+  const [progress, setProgress] = useState(100); // Controlamos el progreso de manera manual
 
   useEffect(() => {
+    // Reducimos el progreso conforme pasa el tiempo
     const interval = setInterval(() => {
       setProgress((oldProgress) =>
         Math.max(oldProgress - 100 / (duration / 50), 0)
@@ -30,15 +26,15 @@ const Notification = ({
   const getNotificationStyle = () => {
     switch (type) {
       case "success":
-        return "bg-success text-white";
+        return "bg-green-500 text-white";
       case "info":
-        return "bg-info text-white";
+        return "bg-blue-500 text-white";
       case "warning":
-        return "bg-warning text-white";
+        return "bg-yellow-500 text-white";
       case "error":
-        return "bg-error text-white";
+        return "bg-red-500 text-white";
       default:
-        return "bg-info text-white";
+        return "bg-blue-500 text-white";
     }
   };
 
@@ -58,23 +54,24 @@ const Notification = ({
   };
 
   return (
-    <div
-      className={`relative text-sm overflow-clip border border-b-2 p-4 rounded-md flex items-center ${getNotificationStyle()}`}
-      style={{
-        marginTop: `${offset}px`, // Desplaza la notificación según el offset
-      }}
+    <ToastPrimitive.Root
+      className={`flex items-center p-4 rounded-md shadow-lg ${getNotificationStyle()} gap-x-2 relative overflow-hidden`}
+      duration={duration}
+      onOpenChange={onClose}
     >
       <div>{getIcon()}</div>
-      <div className="flex-1 pl-2">{message}</div>
+      <ToastPrimitive.Description className="flex-1">
+        {message}
+      </ToastPrimitive.Description>
 
       {/* Barra de progreso */}
       <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-300">
         <div
-          className={`h-full ${getNotificationStyle()} opacity-50 transition-all duration-100`}
-          style={{ width: `${progress}%` }}
-        ></div>
+          className={`h-full ${getNotificationStyle()} opacity-50`}
+          style={{ width: `${progress}%`, transition: "width 50ms linear" }}
+        />
       </div>
-    </div>
+    </ToastPrimitive.Root>
   );
 };
 

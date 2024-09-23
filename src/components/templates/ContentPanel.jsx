@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import ContentList from "../organisms/ContentList";
-import AddContentDialog from "../molecules/AddContentDialog";
+import AddContentDialog from "../molecules/Categories/AddContentDialog";
 import ConfirmDialog from "../molecules/ConfirmDialog"; // Importamos ConfirmDialog
 import { Plus } from "lucide-react";
 import {
@@ -12,6 +12,7 @@ import Button from "../atoms/Button";
 import Select from "../atoms/Select";
 import LoadingModal from "../atoms/LoadingModal";
 import { useNotification } from "../../context/NotificationContext";
+import Input from "../atoms/Input";
 
 const ContentPanel = () => {
   const [categories, setCategories] = useState([]);
@@ -20,8 +21,11 @@ const ContentPanel = () => {
   const [shows, setShows] = useState([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [isLoadingShows, setIsLoadingShows] = useState(false);
+  const [isSaving, setIsSaving] = useState(false); // Estado para controlar el overlay de guardado
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditOption, setIsEditOption] = useState(false);
   const [editShow, setEditShow] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     showId: null,
@@ -67,22 +71,37 @@ const ContentPanel = () => {
     loadCategories();
   }, []);
 
+  const filteredShows = shows.filter((show) =>
+    show.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   // Funciones de manejo de contenido
   const handleEditShow = (show) => {
+    setIsEditOption(true);
     setEditShow(show);
     setIsDialogOpen(true);
   };
 
   const handleSaveShow = async (updatedShow) => {
-    addNotification(
-      "success",
-      `Contenido "${updatedShow.name}" actualizado exitosamente.`
-    );
-    setIsDialogOpen(false);
-    loadShows();
+    setIsSaving(true); // Mostrar el overlay de guardado
+    try {
+      // Simular la operación de guardado (puede ser una operación de API)
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulando operación asíncrona
+      addNotification(
+        "success",
+        `Contenido "${updatedShow.name}" actualizado exitosamente.`
+      );
+      setIsDialogOpen(false);
+      loadShows();
+    } catch (error) {
+      addNotification("error", "Error al actualizar el contenido.");
+    } finally {
+      setIsSaving(false); // Ocultar el overlay de guardado
+    }
   };
 
   const handleDeleteShow = async (showId) => {
+    setIsSaving(true); // Mostrar el overlay de guardado
     try {
       await deleteContent(showId);
       addNotification("info", "Contenido eliminado.");
@@ -92,6 +111,8 @@ const ContentPanel = () => {
         "error",
         `Error al eliminar el contenido: ${error.message}`
       );
+    } finally {
+      setIsSaving(false); // Ocultar el overlay de guardado
     }
   };
 
@@ -110,13 +131,24 @@ const ContentPanel = () => {
 
   return (
     <div>
+      {/* Mostrar loading overlay cuando se está guardando */}
+      {isSaving && (
+        <LoadingModal
+          isLoading={isSaving}
+          message="Guardando cambios..."
+          overlay={true} // Mostrar overlay
+        />
+      )}
+
       <p className="text-lg mb-2">
-        Seleccione una categoría para mostrar el contenido disponible
+        Seleccione una categoría para mostrar el contenido disponible. Una vez
+        hayan contenidos a la vista, puede darle clic para ver detalles sobre
+        los mismos.
       </p>
 
       {/* Mostrar loading de categorías o los selectores cuando estén cargadas */}
-      <div className="flex justify-between items-center space-x-2 mb-4">
-        <div className="flex space-x-4">
+      <div className="flex flex-wrap md:flex-nowrap justify-center md:justify-between items-end gap-x-2">
+        <div className="flex justify-center md:justify-between flex-wrap md:flex-nowrap gap-x-2 md:space-x-4 items-end">
           {isLoadingCategories ? (
             <LoadingModal
               isLoading={isLoadingCategories}
@@ -126,6 +158,7 @@ const ContentPanel = () => {
           ) : (
             <>
               <Select
+                className="w-full"
                 label="Categoría"
                 value={selectedCategory}
                 onChange={(value) => {
@@ -156,18 +189,45 @@ const ContentPanel = () => {
                   }
                 />
               )}
+              {selectedCategory && (
+                <div className="hidden md:inline-flex">
+                  <Input
+                    label="Buscar contenido"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Buscar por nombre..."
+                    className="w-full md:w-auto mb-4"
+                  />
+                </div>
+              )}
             </>
           )}
         </div>
         <Button
-          className="flex items-center mb-4 bg-success space-x-2 text-white"
-          onClick={() => setIsDialogOpen(true)}
+          className="flex justify-between gap-x-1 items-center mb-4 bg-success text-white"
+          onClick={() => {
+            setIsDialogOpen(true);
+            setIsEditOption(false);
+          }}
           disabled={isLoadingCategories || categories.length === 0}
         >
-          <span className="hidden md:inline">Agregar contenido</span>
+          <span>Agregar contenido</span>
           <Plus className="w-5 h-5" />
         </Button>
       </div>
+
+      {/* Buscador debajo de los selectores en móvil */}
+      {selectedCategory && (
+        <div className="mb-4 md:mb-6 md:hidden">
+          <Input
+            label="Buscar contenido"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar por nombre..."
+            className="w-full"
+          />
+        </div>
+      )}
 
       <div className="relative min-h-[200px]">
         {isLoadingShows ? (
@@ -178,7 +238,7 @@ const ContentPanel = () => {
           />
         ) : (
           <ContentList
-            shows={shows}
+            shows={filteredShows}
             onEdit={handleEditShow}
             onDelete={(showId, showName) =>
               openDeleteConfirmation(showId, showName)
@@ -203,6 +263,7 @@ const ContentPanel = () => {
         onClose={() => setIsDialogOpen(false)}
         categories={categories}
         editShow={editShow}
+        isEditShow={isEditOption}
         onSaveShow={handleSaveShow} // Cambiar "onSave" a "onSaveShow"
         onAddShow={loadShows} // Añadir "onAddShow" para recargar contenidos después de añadir uno nuevo
       />

@@ -11,7 +11,7 @@ const LoadingModal = ({
   // Si overlay es falso, hacer que ocupe el espacio como un div normal.
   if (!overlay) {
     return (
-      <div className="flex items-center justify-center w-full py-2">
+      <div className="flex items-center justify-center w-full py-2 m-4">
         <div className="text-gray-700 flex items-center space-x-2">
           <Loader className="animate-spin w-6 h-6 text-blue-500" />
           <p>{message}</p>

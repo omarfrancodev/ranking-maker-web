@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronUp, Check } from "lucide-react";
 
 const Select = ({
   label,
@@ -9,17 +9,11 @@ const Select = ({
   options,
   placeholder = "Seleccione una opción",
 }) => {
-  const [search, setSearch] = useState("");
   const [dropdownWidth, setDropdownWidth] = useState("auto");
   const triggerRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
 
-  // Filtrar las opciones de acuerdo al input de búsqueda
-  const filteredOptions = options.filter((option) =>
-    typeof option === "string"
-      ? option.toLowerCase().includes(search.toLowerCase())
-      : option.label.toLowerCase().includes(search.toLowerCase())
-  );
-
+  // Ajustar el ancho del dropdown al ancho del Trigger
   useEffect(() => {
     if (triggerRef.current) {
       setDropdownWidth(`${triggerRef.current.offsetWidth}px`);
@@ -27,68 +21,87 @@ const Select = ({
   }, []);
 
   return (
-    <div className="mb-4">
+    <div className="mb-4 relative">
       <label className="block text-sm font-medium mb-1">{label}</label>
-      <SelectPrimitive.Root value={value} onValueChange={onChange}>
+      <SelectPrimitive.Root
+        value={value}
+        onValueChange={onChange}
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      >
         <SelectPrimitive.Trigger
           ref={triggerRef}
-          className="w-full border border-gray-300 rounded-md p-2 md:py-2 md:px-3 flex justify-between items-center"
+          className="w-full border border-gray-300 rounded-md p-2 md:py-2 md:px-3 flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => e.stopPropagation()}
         >
           <SelectPrimitive.Value placeholder={placeholder} />
-          <SelectPrimitive.Icon className="ml-2">
-            <ChevronDown className="w-4 h-4" />
+          <SelectPrimitive.Icon>
+            <ChevronDown className="ml-2 w-4 h-4" />
           </SelectPrimitive.Icon>
         </SelectPrimitive.Trigger>
 
         <SelectPrimitive.Portal>
           <SelectPrimitive.Content
-            className="bg-white border border-gray-300 rounded-md z-50"
+            className="bg-white border border-gray-300 rounded-md z-50 shadow-lg min-h-min max-h-60"
             style={{ width: dropdownWidth }}
             position="popper"
           >
-            {/* Campo de búsqueda */}
-            <div className="px-3 py-2 w-full border-b">
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar..."
-                className="w-full p-2 border border-gray-300 rounded"
-              />
-            </div>
+            <SelectPrimitive.ScrollUpButton className="flex justify-center p-2">
+              <ChevronUp />
+            </SelectPrimitive.ScrollUpButton>
 
-            {filteredOptions.length > 0 ? (
-              filteredOptions.map((option, index) => {
-                const optionValue =
-                  typeof option === "string" ? option : option.value;
+            <SelectPrimitive.Viewport>
+              {options.length > 0 ? (
+                options.map((option, index) => {
+                  const optionValue =
+                    typeof option === "string" ? option : option.value;
 
-                // Evitar valores vacíos para SelectPrimitive.Item
-                if (!optionValue) {
-                  return null; // Ignorar elementos sin valor
-                }
+                  return (
+                    <SelectItem
+                      key={index}
+                      value={optionValue}
+                      label={typeof option === "string" ? option : option.label}
+                    />
+                  );
+                })
+              ) : (
+                <div className="py-2 px-4 text-gray-500">
+                  No se encontraron opciones
+                </div>
+              )}
+            </SelectPrimitive.Viewport>
 
-                return (
-                  <SelectPrimitive.Item
-                    key={index}
-                    value={optionValue}
-                    className="py-2 px-4 cursor-pointer hover:bg-gray-100"
-                  >
-                    <SelectPrimitive.ItemText>
-                      {typeof option === "string" ? option : option.label}
-                    </SelectPrimitive.ItemText>
-                  </SelectPrimitive.Item>
-                );
-              })
-            ) : (
-              <div className="py-2 px-4 text-gray-500">
-                No se encontraron opciones
-              </div>
-            )}
+            <SelectPrimitive.ScrollDownButton className="flex justify-center p-2">
+              <ChevronDown />
+            </SelectPrimitive.ScrollDownButton>
           </SelectPrimitive.Content>
         </SelectPrimitive.Portal>
       </SelectPrimitive.Root>
     </div>
   );
 };
+
+const SelectItem = React.forwardRef(({ value, label }, ref) => (
+  <SelectPrimitive.Item
+    value={value}
+    ref={ref}
+    className="py-2 px-4 cursor-pointer hover:bg-gray-100 flex justify-between items-center"
+    onClick={(event) => {
+      event.stopPropagation(); // Detiene la propagación del evento de clic
+    }}
+    onTouchStart={(event) => {
+      event.stopPropagation(); // Detiene la propagación del evento táctil
+    }}
+    onTouchEnd={(event) => {
+      event.stopPropagation(); // Detiene la propagación del evento táctil
+    }}
+  >
+    <SelectPrimitive.ItemText>{label}</SelectPrimitive.ItemText>
+    <SelectPrimitive.ItemIndicator className="text-blue-500">
+      <Check />
+    </SelectPrimitive.ItemIndicator>
+  </SelectPrimitive.Item>
+));
 
 export default Select;
