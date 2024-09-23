@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import ContentList from "../organisms/ContentList";
-import AddContentDialog from "../molecules/Categories/AddContentDialog";
+import AddContentDialog from "../molecules/Contents/AddContentDialog";
 import ConfirmDialog from "../molecules/ConfirmDialog"; // Importamos ConfirmDialog
 import { Plus } from "lucide-react";
 import {

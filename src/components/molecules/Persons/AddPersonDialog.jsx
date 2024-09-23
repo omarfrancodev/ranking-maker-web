@@ -1,6 +1,6 @@
-import Dialog from "../atoms/Dialog";
-import Input from "../atoms/Input";
-import Button from "../atoms/Button";
+import Dialog from "../../atoms/Dialog";
+import Input from "../../atoms/Input";
+import Button from "../../atoms/Button";
 
 const AddPersonDialog = ({
   isOpen,
