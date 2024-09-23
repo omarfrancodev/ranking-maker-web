@@ -2,7 +2,7 @@ import axios from "axios";
 
 const CONTENT_API_KEY = process.env.REACT_APP_CONTENT_API_KEY;
 
-const CONTENT_API_URL = "http://www.omdbapi.com/";
+const CONTENT_API_URL = process.env.REACT_APP_CONTENT_API_URL;
 
 const paramAPIKey = `?apikey=${CONTENT_API_KEY}`;
 
