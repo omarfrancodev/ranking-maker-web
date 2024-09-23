@@ -4,7 +4,7 @@ import ConfirmDialog from "../molecules/ConfirmDialog";
 import { useNotification } from "../../context/NotificationContext";
 import PeopleList from "../organisms/PeopleList";
 import LoadingModal from "../atoms/LoadingModal";
-import AddPersonDialog from "../molecules/AddPersonDialog";
+import AddPersonDialog from "../molecules/Persons/AddPersonDialog";
 import { Plus } from "lucide-react";
 import {
   fetchPersons,
