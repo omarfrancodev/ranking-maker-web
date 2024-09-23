@@ -1,7 +1,7 @@
 import React from "react";
 import { Edit, Trash, Save, X } from "lucide-react";
-import Button from "../atoms/Button";
-import Input from "../atoms/Input";
+import Button from "../../atoms/Button";
+import Input from "../../atoms/Input";
 
 const PersonItem = ({
   person,
@@ -13,9 +13,9 @@ const PersonItem = ({
   ...personProps
 }) => {
   return (
-    <li key={person.id} className="border-b">
+    <div key={person.id} className="shadow rounded-lg">
       <div
-        className={`flex justify-between p-2 items-center cursor-pointer
+        className={`flex justify-between p-2 items-center
         }`}
       >
         {editPerson === person.name ? (
@@ -67,7 +67,7 @@ const PersonItem = ({
           </Button>
         </div>
       </div>
-    </li>
+    </div>
   );
 };
 

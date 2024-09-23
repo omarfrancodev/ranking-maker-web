@@ -1,39 +1,83 @@
 import React, { useState, useEffect } from "react";
-import Dialog from "../atoms/Dialog";
-import Input from "../atoms/Input";
-import Select from "../atoms/Select";
-import Button from "../atoms/Button";
-import { createContent, updateContent } from "../../services/api";
-import TagSelect from "../atoms/TagSelect";
-import { useNotification } from "../../context/NotificationContext";
+import Dialog from "../../atoms/Dialog";
+import Input from "../../atoms/Input";
+import Select from "../../atoms/Select";
+import Button from "../../atoms/Button";
+import {
+  createContent,
+  updateContent,
+  fetchCategoriesWithSubcategories,
+} from "../../../services/api"; // Importamos la función para obtener categorías
+import TagSelect from "../../atoms/TagSelect";
+import { useNotification } from "../../../context/NotificationContext";
 
 const AddContentDialog = ({
   isOpen,
   onClose,
-  categories,
   onAddShow, // Función para recargar los contenidos
   editShow, // Contenido que se está editando
+  isEditShow,
   onSaveShow, // Función para guardar los cambios al editar
 }) => {
   const [showName, setShowName] = useState("");
+  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategories, setSelectedSubcategories] = useState([]);
   const [nonRemovableIds, setNonRemovableIds] = useState([]);
 
   const { addNotification } = useNotification();
 
+  // Obtener categorías cuando se abre el diálogo
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await fetchCategoriesWithSubcategories();
+        setCategories(response.data); // Actualizar las categorías
+      } catch (error) {
+        addNotification("error", "Error al cargar las categorías.");
+      }
+    };
+
+    if (isOpen) {
+      loadCategories(); // Cargar las categorías al abrir el diálogo
+    }
+  }, [isOpen, addNotification]);
+
   // Manejar la edición del contenido
   useEffect(() => {
-    if (editShow) {
-      setShowName(editShow.name);
-      setSelectedCategory(editShow.category.id);
-      setSelectedSubcategories(editShow.subcategories.map((sub) => sub.id));
-    } else {
+    if (editShow && categories.length > 0 && isEditShow) {
+      // Buscar y eliminar categorías o subcategorías que ya no existen
+      const validCategory = categories.find(
+        (cat) => cat.id === editShow.category.id
+      );
+
+      if (validCategory) {
+        setShowName(editShow.name);
+        setSelectedCategory(editShow.category.id);
+
+        const validSubcategories = editShow.subcategories
+          .map((sub) => sub.id)
+          .filter((subId) =>
+            validCategory.subcategories.some(
+              (sub) => sub.subcategory_id === subId
+            )
+          );
+        setSelectedSubcategories(validSubcategories);
+      } else {
+        addNotification(
+          "warning",
+          "La categoría seleccionada ya no existe. Selecciona una nueva categoría."
+        );
+        setSelectedCategory("");
+        setSelectedSubcategories([]);
+      }
+    } else if (!isEditShow) {
+      // Restablecer campos si es nuevo contenido
       setShowName("");
       setSelectedCategory("");
       setSelectedSubcategories([]);
     }
-  }, [editShow]);
+  }, [editShow, categories, addNotification, isEditShow]);
 
   // Controlar la selección de la subcategoría "General"
   useEffect(() => {
@@ -100,7 +144,15 @@ const AddContentDialog = ({
   return (
     <Dialog
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={() => {
+        onClose();
+        setShowName("");
+        setCategories([]);
+        setSelectedCategory("");
+        setSelectedSubcategories([]);
+        setNonRemovableIds([]);
+        editShow = null;
+      }}
       title={editShow ? "Editar contenido" : "Añadir nuevo contenido"}
       description="Escoja un nombre, una categoría y las subcategorías del contenido que quiera agregar"
     >
@@ -139,10 +191,10 @@ const AddContentDialog = ({
 
       <div className="flex justify-center w-full">
         <Button
-          className="bg-success text-white mt-4"
+          className="bg-success text-white"
           onClick={handleAddOrUpdateShow}
         >
-          {editShow ? "Guardar cambios" : "Añadir nuevo contenido"}
+          Guardar
         </Button>
       </div>
     </Dialog>
