@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import NotificationContainer from "../components/molecules/NotificationsContainer";
 
 const NotificationContext = createContext();
@@ -9,8 +10,8 @@ export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
   // Agregar una notificación con un ID único
-  const addNotification = (type, message, duration = 3000) => {
-    const id = Date.now(); // Generar un ID único basado en el timestamp
+  const addNotification = (type, message, duration = 4000) => {
+    const id = uuidv4(); // Generar un ID único usando uuid
     setNotifications((prev) => [...prev, { id, message, type, duration }]);
   };
 

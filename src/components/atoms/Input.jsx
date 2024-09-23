@@ -8,7 +8,7 @@ const Input = ({ label, value, onChange }) => {
       <input
         value={value}
         onChange={onChange}
-        className="w-full border border-gray-300 rounded-md p-1"
+        className="w-full border border-gray-300 rounded-md p-2"
         type="text"
       />
     </div>

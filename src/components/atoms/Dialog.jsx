@@ -1,4 +1,3 @@
-// src/components/atoms/Dialog.jsx
 import React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react"; // Importamos el icono "X"
@@ -8,12 +7,7 @@ const Dialog = ({ isOpen, onClose, children, title, description }) => {
     <DialogPrimitive.Root open={isOpen} onOpenChange={onClose}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="bg-black bg-opacity-50 fixed inset-0" />
-        <DialogPrimitive.Content
-          className="bg-white min-w-min max-h-max max-w-max p-6 rounded-md shadow-lg fixed inset-0 m-2 md:m-auto"
-          style={{
-            overflowY: "auto",
-          }}
-        >
+        <DialogPrimitive.Content className="bg-white p-6 min-h-min max-h-[80%] rounded-md shadow-lg fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 overflow-x-clip overflow-y-auto w-full md:w-auto max-w-[90%] md:max-w-4xl">
           {/* Agregamos un DialogTitle */}
           {title && (
             <DialogPrimitive.Title className="text-xl font-bold mt-6 mb-4">

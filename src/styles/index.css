@@ -2,17 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Agrega esto a tu archivo CSS personalizado si Tailwind no tiene clases por defecto */
-ul::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  ul::-webkit-scrollbar-track {
-    background: #dcfce7; /* Misma clase que el fondo de las subcategorías */
-  }
-  
-  ul::-webkit-scrollbar-thumb {
-    background-color: #34d399; /* Un color verde para el thumb */
-    border-radius: 10px;
-  }
-  
+/* Estilos globales para el scroll en toda la app */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 6px;
+  border: 3px solid #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}

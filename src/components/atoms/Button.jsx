@@ -18,7 +18,7 @@ const Button = React.forwardRef(
         ref={ref} // Asignamos el ref aquí
         onClick={onClick}
         className={classNames(
-          "p-3 rounded",
+          "px-3 py-2 rounded",
           className,
           { "opacity-50 cursor-not-allowed": disabled } // Añadir estilos cuando está deshabilitado
         )}
