@@ -12,12 +12,18 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.code === "ECONNABORTED") {
+    if (axios.isCancel(error)) {
+      // Manejar el error de solicitud cancelada
+      return Promise.reject(new Error("La solicitud fue cancelada."));
+    } else if (error.message && error.message.includes("timeout")) {
       // Manejar el error de timeout
-      throw new Error(
-        "Se superó el tiempo máximo de espera. Inténtalo de nuevo más tarde."
+      return Promise.reject(
+        new Error(
+          "Se superó el tiempo máximo de espera. Inténtalo de nuevo más tarde."
+        )
       );
     }
+    // Manejar otros tipos de errores
     return Promise.reject(error);
   }
 );
