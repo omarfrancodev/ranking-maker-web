@@ -4,7 +4,7 @@ import ConfirmDialog from "../molecules/ConfirmDialog";
 import CategoryList from "../organisms/CategoryList";
 import LoadingModal from "../atoms/LoadingModal";
 import { useNotification } from "../../context/NotificationContext";
-import AddCategoryDialog from "../molecules/Categories/AddCategoryDialog"; // Importar el nuevo diálogo
+import AddCategoryDialog from "../molecules/Categories/AddCategoryDialog";
 import { Plus } from "lucide-react";
 import {
   fetchCategoriesWithSubcategories,
@@ -14,9 +14,10 @@ import {
   updateSubcategory,
   deleteCategory,
   deleteSubcategory,
-} from "../../services/api"; // Importar las funciones API
+} from "../../services/api";
 
 const CategoryPanel = () => {
+  // Estado
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,14 +32,12 @@ const CategoryPanel = () => {
   const [newSubcategoryName, setNewSubcategoryName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [editCategory, setEditCategory] = useState(null);
-  const [isEditMode, setIsEditMode] = useState(false);
   const [editSubcategory, setEditSubcategory] = useState(null);
-  const [expandedCategory, setExpandedCategory] = useState(null);
-  const [isToggleDisabled, setIsToggleDisabled] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
-  // Acceder a las funciones de notificación
   const { addNotification } = useNotification();
 
+  // Cargar categorías al iniciar
   const loadCategories = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -55,6 +54,7 @@ const CategoryPanel = () => {
     loadCategories();
   }, [loadCategories]);
 
+  // Función para agregar una nueva categoría o subcategoría
   const handleAddNew = async () => {
     setIsSubmitting(true);
 
@@ -68,9 +68,7 @@ const CategoryPanel = () => {
         return;
       }
       try {
-        // Crear la categoría
         const newCategoryResponse = await createCategory(newCategoryName);
-        addNotification("success", `Categoría "${newCategoryName}" agregada`);
 
         // Crear la subcategoría 'General' para la nueva categoría
         const newCategoryId = newCategoryResponse.data.id;
@@ -81,12 +79,17 @@ const CategoryPanel = () => {
           `Subcategoría "General" agregada a "${newCategoryName}"`
         );
 
+        addNotification("success", `Categoría "${newCategoryName}" agregada`);
+
+        // Limpiar el estado
+        setNewCategoryName("");
+        setIsDialogOpen(false);
         // Recargar categorías
         loadCategories();
       } catch (error) {
         addNotification(
           "error",
-          `Error al agregar categoría o subcategoría: ${error}`
+          `Error al agregar categoría: ${error.message}`
         );
       }
     } else if (newItemType === "Subcategoría") {
@@ -108,27 +111,42 @@ const CategoryPanel = () => {
           newSubcategoryName,
           selectedCategory
         );
+
+        // Actualizar las subcategorías de la categoría seleccionada
+        setCategories((prevCategories) =>
+          prevCategories.map((category) =>
+            category.id === selectedCategory
+              ? {
+                  ...category,
+                  subcategories: [...category.subcategories, res.data],
+                }
+              : category
+          )
+        );
+
         addNotification(
           "success",
-          `Subcategoría "${newSubcategoryName}" agregada a "${res.data.category.name}"`
+          `Subcategoría "${newSubcategoryName}" agregada`
         );
-        loadCategories();
+
+        // Limpiar el estado
+        setNewSubcategoryName("");
+        setIsDialogOpen(false);
       } catch (error) {
-        addNotification("error", `Error al agregar subcategoría: ${error}`);
+        addNotification(
+          "error",
+          `Error al agregar subcategoría: ${error.message}`
+        );
       }
     }
 
     setIsSubmitting(false);
-    setIsDialogOpen(false);
-    setNewCategoryName("");
-    setNewSubcategoryName("");
   };
 
-  // Función para editar categorías
-  const handleEditCategory = (categoryName) => {
-    setEditCategory(categoryName);
-    setNewCategoryName(categoryName);
-    setIsToggleDisabled(true);
+  // Función para editar categoría
+  const handleEditCategory = (category) => {
+    setEditCategory(category);
+    setNewCategoryName(category.name);
     setIsEditMode(true);
   };
 
@@ -143,31 +161,35 @@ const CategoryPanel = () => {
       return;
     }
     try {
-      await updateCategory(categoryId, newCategoryName); // Actualizar categoría
-      addNotification(
-        "success",
-        `Categoría "${oldName}" actualizada a "${newCategoryName}"`
+      await updateCategory(categoryId, newCategoryName);
+
+      // Actualizar la categoría sin recargar toda la lista
+      setCategories((prevCategories) =>
+        prevCategories.map((category) =>
+          category.id === categoryId
+            ? { ...category, name: newCategoryName }
+            : category
+        )
       );
-      loadCategories();
+
+      addNotification("success", `Categoría "${oldName}" actualizada`);
+      setEditCategory(null);
+      setNewCategoryName("");
+      setIsEditMode(false);
     } catch (error) {
-      addNotification("error", `Error al actualizar la categoría: ${error}`);
+      addNotification(
+        "error",
+        `Error al actualizar la categoría: ${error.message}`
+      );
     }
-    setEditCategory(null);
-    setIsEditMode(false);
-    setIsToggleDisabled(false);
     setIsSubmitting(false);
-    setNewCategoryName("");
   };
 
-  // Función para editar subcategorías
-  const handleEditSubcategory = (categoryName, subcategoryName) => {
-    setEditSubcategory({
-      category: categoryName,
-      subcategory: subcategoryName,
-    });
+  // Función para editar subcategoría
+  const handleEditSubcategory = (subcategory) => {
+    setEditSubcategory(subcategory);
+    setNewSubcategoryName(subcategory.name);
     setIsEditMode(true);
-    setNewSubcategoryName(subcategoryName);
-    setIsToggleDisabled(true);
   };
 
   const handleSaveSubcategory = async (
@@ -185,20 +207,38 @@ const CategoryPanel = () => {
       return;
     }
     try {
-      await updateSubcategory(subcategoryId, newSubcategoryName); // Actualizar subcategoría
+      await updateSubcategory(subcategoryId, newSubcategoryName);
+
+      // Actualizar la subcategoría sin recargar toda la lista
+      setCategories((prevCategories) =>
+        prevCategories.map((category) =>
+          category.subcategories.some((sub) => sub.id === subcategoryId)
+            ? {
+                ...category,
+                subcategories: category.subcategories.map((sub) =>
+                  sub.id === subcategoryId
+                    ? { ...sub, name: newSubcategoryName }
+                    : sub
+                ),
+              }
+            : category
+        )
+      );
+
       addNotification(
         "success",
         `Subcategoría "${oldSubcategoryName}" actualizada`
       );
-      loadCategories();
+      setEditSubcategory(null);
+      setNewSubcategoryName("");
+      setIsEditMode(false);
     } catch (error) {
-      addNotification("error", `Error al actualizar la subcategoría: ${error}`);
+      addNotification(
+        "error",
+        `Error al actualizar la subcategoría: ${error.message}`
+      );
     }
-    setEditSubcategory(null);
-    setIsEditMode(false);
-    setIsToggleDisabled(false);
     setIsSubmitting(false);
-    setNewSubcategoryName("");
   };
 
   // Función para eliminar categoría
@@ -209,11 +249,19 @@ const CategoryPanel = () => {
       action: async () => {
         setIsSubmitting(true);
         try {
-          await deleteCategory(categoryId); // Eliminar categoría de la API
+          await deleteCategory(categoryId);
+
+          // Eliminar la categoría sin recargar toda la lista
+          setCategories((prevCategories) =>
+            prevCategories.filter((category) => category.id !== categoryId)
+          );
+
           addNotification("info", `Categoría "${categoryName}" eliminada`);
-          loadCategories();
         } catch (error) {
-          addNotification("error", `Error al eliminar la categoría: ${error}`);
+          addNotification(
+            "error",
+            `Error al eliminar la categoría: ${error.message}`
+          );
         }
         setIsSubmitting(false);
         setConfirmDialog({ isOpen: false, action: null, message: "" });
@@ -221,7 +269,7 @@ const CategoryPanel = () => {
     });
   };
 
-  // Función para eliminar categoría
+  // Función para eliminar subcategoría
   const handleDeleteSubcategory = (subcategoryId, subcategoryName) => {
     setConfirmDialog({
       isOpen: true,
@@ -229,16 +277,30 @@ const CategoryPanel = () => {
       action: async () => {
         setIsSubmitting(true);
         try {
-          await deleteSubcategory(subcategoryId); // Eliminar categoría de la API
+          await deleteSubcategory(subcategoryId);
+
+          // Eliminar la subcategoría sin recargar toda la lista
+          setCategories((prevCategories) =>
+            prevCategories.map((category) =>
+              category.subcategories.some((sub) => sub.id === subcategoryId)
+                ? {
+                    ...category,
+                    subcategories: category.subcategories.filter(
+                      (sub) => sub.id !== subcategoryId
+                    ),
+                  }
+                : category
+            )
+          );
+
           addNotification(
             "info",
             `Subcategoría "${subcategoryName}" eliminada`
           );
-          loadCategories();
         } catch (error) {
           addNotification(
             "error",
-            `Error al eliminar la subcategoría: ${error}`
+            `Error al eliminar la subcategoría: ${error.message}`
           );
         }
         setIsSubmitting(false);
@@ -251,28 +313,17 @@ const CategoryPanel = () => {
     setEditCategory(null);
     setIsEditMode(false);
     setNewCategoryName("");
-    setIsToggleDisabled(false);
   };
 
   const cancelEditSubcategory = () => {
     setEditSubcategory(null);
     setIsEditMode(false);
     setNewSubcategoryName("");
-    setIsToggleDisabled(false);
-  };
-
-  // Función para colapsar/expandir categorías
-  const toggleCategoryCollapse = (categoryName) => {
-    if (!isToggleDisabled) {
-      setExpandedCategory(
-        expandedCategory === categoryName ? null : categoryName
-      );
-    }
   };
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">Administrar Categorias</h2>
+      <h2 className="text-xl font-semibold mb-4">Administrar Categorías</h2>
       <Button
         className="flex justify-between items-center gap-x-2 bg-success text-white"
         onClick={() => setIsDialogOpen(true)}
@@ -310,29 +361,25 @@ const CategoryPanel = () => {
 
       {/* Contenedor de categorías */}
       <div className="relative min-h-52">
-        {" "}
-        {/* Ajusta la altura mínima para hacer visible el loading */}
         {isLoading ? (
           <LoadingModal
             isLoading={isLoading}
             message="Cargando categorías..."
-            overlay={false} // Aquí especificamos que no debe cubrir toda la pantalla
+            overlay={false}
           />
         ) : (
           <CategoryList
             categories={categories}
             editCategory={editCategory}
-            expandedCategory={expandedCategory}
-            toggleCategoryCollapse={toggleCategoryCollapse}
+            editSubcategory={editSubcategory}
             handleEditCategory={handleEditCategory}
             handleSaveCategory={handleSaveCategory}
-            cancelEditCategory={cancelEditCategory}
+            cancelEdit={cancelEditCategory}
+            cancelEditSubcategory={cancelEditSubcategory}
             handleDeleteCategory={handleDeleteCategory}
             handleDeleteSubcategory={handleDeleteSubcategory}
-            editSubcategory={editSubcategory}
             handleEditSubcategory={handleEditSubcategory}
             handleSaveSubcategory={handleSaveSubcategory}
-            cancelEditSubcategory={cancelEditSubcategory}
             newCategoryName={newCategoryName}
             setNewCategoryName={setNewCategoryName}
             newSubcategoryName={newSubcategoryName}
@@ -345,7 +392,7 @@ const CategoryPanel = () => {
       <LoadingModal
         isLoading={isSubmitting}
         message="Guardando cambios..."
-        overlay={true} // Loading global superpuesto
+        overlay={true}
       />
     </div>
   );

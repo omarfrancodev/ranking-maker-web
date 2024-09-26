@@ -33,7 +33,10 @@ const AddCategoryDialog = ({
         label="Selecciona un tipo"
         value={newItemType}
         onChange={setNewItemType}
-        options={["Categoría", "Subcategoría"]}
+        options={[
+          { key: "Categoría", value: "Categoría" },
+          { key: "Subcategoría", value: "Subcategoría" },
+        ]}
       />
 
       {newItemType === "Categoría" ? (
@@ -41,6 +44,7 @@ const AddCategoryDialog = ({
           label="Nombre de la Categoría"
           value={newCategoryName}
           onChange={(e) => setNewCategoryName(e.target.value)}
+          placeholder="ej. Películas"
         />
       ) : (
         <>
@@ -49,8 +53,8 @@ const AddCategoryDialog = ({
             value={selectedCategory} // Debe ser el id de la categoría
             onChange={setSelectedCategory} // Asignar directamente el id sin acceder a `target.value`
             options={categories.map((cat) => ({
-              label: cat.name,
-              value: cat.id, // Asegúrate de usar el id correcto de la categoría
+              value: cat.name,
+              key: cat.id, // Asegúrate de usar el id correcto de la categoría
             }))}
           />
 
@@ -58,6 +62,7 @@ const AddCategoryDialog = ({
             label="Nombre de la Subcategoría"
             value={newSubcategoryName}
             onChange={(e) => setNewSubcategoryName(e.target.value)}
+            placeholder="ej. Comedia, Marvel, etc."
           />
         </>
       )}
