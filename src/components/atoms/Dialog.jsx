@@ -7,17 +7,17 @@ const Dialog = ({ isOpen, onClose, children, title, description }) => {
     <DialogPrimitive.Root open={isOpen} onOpenChange={onClose}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="bg-black bg-opacity-50 fixed inset-0" />
-        <DialogPrimitive.Content className="bg-white p-6 min-h-min max-h-[80%] rounded-md shadow-lg fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 overflow-x-clip overflow-y-auto w-full md:w-auto max-w-[90%] md:max-w-4xl">
+        <DialogPrimitive.Content className="bg-white p-4 sm:p-6 min-h-min max-h-[80%] rounded-md shadow-lg fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 overflow-x-clip overflow-y-auto w-full md:w-auto max-w-[90%] md:max-w-4xl">
           {/* Agregamos un DialogTitle */}
           {title && (
-            <DialogPrimitive.Title className="text-xl font-bold mt-6 mb-4">
+            <DialogPrimitive.Title className="text-xl font-bold mt-4 mb-2">
               {title}
             </DialogPrimitive.Title>
           )}
 
           {/* Agregamos una descripción opcional */}
           {description && (
-            <DialogPrimitive.Description className="mb-4 text-gray-500">
+            <DialogPrimitive.Description className="mb-2 text-sm md:text-base text-gray-500">
               {description}
             </DialogPrimitive.Description>
           )}
