@@ -23,6 +23,7 @@ const PersonItem = ({
             value={personProps.newPersonName}
             onChange={(e) => personProps.setNewPersonName(e.target.value)}
             className="mr-4"
+            placeholder={personProps.newPersonName}
           />
         ) : (
           <div className="flex items-center">

@@ -16,7 +16,7 @@ const ConfirmDialog = ({ isOpen, onClose, onConfirm, message }) => {
           className="bg-black bg-opacity-50 fixed inset-0"
           onClick={handleOverlayClick}
         />
-        <AlertDialogPrimitive.Content className="bg-white p-6 rounded-md shadow-lg fixed inset-0 m-2 md:m-auto max-w-max max-h-min w-full z-50">
+        <AlertDialogPrimitive.Content className="bg-white p-6 rounded-md shadow-lg fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 md:m-auto max-w-[90%] min-h-max max-h-min w-full md:w-fit z-50">
           <AlertDialogPrimitive.Title className="text-lg font-bold">
             Confirmación
           </AlertDialogPrimitive.Title>
