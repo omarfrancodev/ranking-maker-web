@@ -20,7 +20,7 @@ const ContentInfoDialog = ({
           ? contentTitle
           : contentInfo?.Title || "Información del contenido"
       }
-      description="Información acerca del contenido obtenida de OMDb API"
+      description="Información obtenida de OMDb API"
     >
       <div>
         {/* Verifica si está cargando */}
@@ -32,14 +32,16 @@ const ContentInfoDialog = ({
           />
         ) : contentInfo ? (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-h-[400px] overflow-auto">
-            <div className="sm:col-span-1">
-              <img
-                src={contentInfo.Poster}
-                alt={contentInfo.Title}
-                className="w-full sm:h-auto min-h-min object-cover rounded-md shadow-lg"
-              />
+            <div className="sm:sticky sm:col-span-1">
+              <div className="sticky top-4">
+                <img
+                  src={contentInfo.Poster}
+                  alt={contentInfo.Title}
+                  className="w-full sm:h-auto min-h-min object-cover rounded-md shadow-lg"
+                />
+              </div>
             </div>
-            <div className="sm:col-span-2 space-y-3">
+            <div className="col-span-2 space-y-3">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="secondary">
                   {contentInfo.Type

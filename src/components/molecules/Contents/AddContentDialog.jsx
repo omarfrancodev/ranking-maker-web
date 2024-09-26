@@ -3,6 +3,7 @@ import Dialog from "../../atoms/Dialog";
 import Input from "../../atoms/Input";
 import Select from "../../atoms/Select";
 import Button from "../../atoms/Button";
+import LoadingModal from "../../atoms/LoadingModal"; // Importamos el LoadingModal
 import {
   createContent,
   updateContent,
@@ -24,6 +25,7 @@ const AddContentDialog = ({
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategories, setSelectedSubcategories] = useState([]);
   const [nonRemovableIds, setNonRemovableIds] = useState([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
   const { addNotification } = useNotification();
 
@@ -31,10 +33,13 @@ const AddContentDialog = ({
   useEffect(() => {
     const loadCategories = async () => {
       try {
+        setIsLoadingCategories(true);
         const response = await fetchCategoriesWithSubcategories();
         setCategories(response.data); // Actualizar las categorías
       } catch (error) {
         addNotification("error", "Error al cargar las categorías.");
+      } finally {
+        setIsLoadingCategories(false);
       }
     };
 
@@ -77,7 +82,8 @@ const AddContentDialog = ({
       setSelectedCategory("");
       setSelectedSubcategories([]);
     }
-  }, [editShow, categories, addNotification, isEditShow]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editShow, categories, isEditShow]);
 
   // Controlar la selección de la subcategoría "General"
   useEffect(() => {
@@ -156,47 +162,64 @@ const AddContentDialog = ({
       title={editShow ? "Editar contenido" : "Añadir nuevo contenido"}
       description="Escoja un nombre, una categoría y las subcategorías del contenido que quiera agregar"
     >
-      <Input
-        label="Nombre del contenido"
-        value={showName}
-        onChange={(e) => setShowName(e.target.value)}
-      />
+      {/* Mostrar LoadingModal mientras se cargan las categorías */}
+      {isLoadingCategories ? (
+        <div className="flex justify-center items-center h-48">
+          <LoadingModal
+            isLoading={true}
+            message="Cargando datos..."
+            overlay={false}
+          />
+        </div>
+      ) : (
+        <>
+          <Input
+            label="Nombre del contenido"
+            value={showName}
+            onChange={(e) => setShowName(e.target.value)}
+            placeholder="ej. El Origen"
+          />
 
-      <Select
-        label="Categoría"
-        value={selectedCategory}
-        onChange={(value) => {
-          setSelectedCategory(value);
-          setSelectedSubcategories([]); // Limpiar subcategorías al cambiar categoría
-        }}
-        options={categories.map((cat) => ({ label: cat.name, value: cat.id }))}
-      />
+          <Select
+            label="Categoría"
+            value={selectedCategory}
+            onChange={(value) => {
+              setSelectedCategory(value);
+              setSelectedSubcategories([]); // Limpiar subcategorías al cambiar categoría
+            }}
+            options={categories.map((cat) => ({
+              value: cat.name,
+              key: cat.id,
+            }))}
+          />
 
-      {selectedCategory && selectedCategory !== "" && (
-        <TagSelect
-          label="Subcategorías"
-          value={selectedSubcategories}
-          onChange={setSelectedSubcategories}
-          options={
-            categories
-              .find((cat) => cat.id === selectedCategory)
-              ?.subcategories.map((sub) => ({
-                label: sub.name,
-                value: sub.subcategory_id,
-              })) || []
-          }
-          nonRemovableIds={nonRemovableIds} // Pasar IDs que no se pueden deseleccionar
-        />
+          {selectedCategory && selectedCategory !== "" && (
+            <TagSelect
+              label="Subcategorías"
+              value={selectedSubcategories}
+              onChange={setSelectedSubcategories}
+              options={
+                categories
+                  .find((cat) => cat.id === selectedCategory)
+                  ?.subcategories.map((sub) => ({
+                    label: sub.name,
+                    value: sub.subcategory_id,
+                  })) || []
+              }
+              nonRemovableIds={nonRemovableIds} // Pasar IDs que no se pueden deseleccionar
+            />
+          )}
+
+          <div className="flex justify-center w-full">
+            <Button
+              className="bg-success text-white"
+              onClick={handleAddOrUpdateShow}
+            >
+              Guardar
+            </Button>
+          </div>
+        </>
       )}
-
-      <div className="flex justify-center w-full">
-        <Button
-          className="bg-success text-white"
-          onClick={handleAddOrUpdateShow}
-        >
-          Guardar
-        </Button>
-      </div>
     </Dialog>
   );
 };
