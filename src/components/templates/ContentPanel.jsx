@@ -12,7 +12,8 @@ import Button from "../atoms/Button";
 import Select from "../atoms/Select";
 import LoadingModal from "../atoms/LoadingModal";
 import { useNotification } from "../../context/NotificationContext";
-import Input from "../atoms/Input";
+import Combobox from "../atoms/Combobox";
+import ErrorPage from "../../pages/ErrorPage";
 
 const ContentPanel = () => {
   const [categories, setCategories] = useState([]);
@@ -26,15 +27,19 @@ const ContentPanel = () => {
   const [isEditOption, setIsEditOption] = useState(false);
   const [editShow, setEditShow] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1); // Nuevo estado para controlar la página actual
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     showId: null,
   });
+  const [hasErrorCategories, setHasErrorCategories] = useState(false); // Estado para manejar errores de categorías
+  const [hasErrorShows, setHasErrorShows] = useState(false); // Estado para manejar errores de shows
   const { addNotification } = useNotification();
 
   const loadShows = useCallback(async () => {
     if (!selectedCategory) return;
     setIsLoadingShows(true);
+    setHasErrorShows(false);
     const filters = {};
     if (selectedCategory && selectedCategory !== "all") {
       filters.category = selectedCategory;
@@ -47,6 +52,7 @@ const ContentPanel = () => {
       setShows(response);
     } catch (error) {
       console.error("Error al cargar shows:", error);
+      setHasErrorShows(true);
     }
     setIsLoadingShows(false);
   }, [selectedCategory, selectedSubcategory]);
@@ -57,19 +63,32 @@ const ContentPanel = () => {
     }
   }, [loadShows, selectedCategory]);
 
+  const loadCategories = async () => {
+    setIsLoadingCategories(true);
+    setHasErrorCategories(false);
+    try {
+      const response = await fetchCategoriesWithSubcategories();
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error al cargar categorías:", error);
+      setHasErrorCategories(true); // Si ocurre un error, establecer el estado de error en verdadero
+      addNotification(
+        "error",
+        `Error al cargar los datos: ${error}. Inténtelo más tarde. `
+      );
+    }
+    setIsLoadingCategories(false);
+  };
+
   useEffect(() => {
-    const loadCategories = async () => {
-      setIsLoadingCategories(true);
-      try {
-        const response = await fetchCategoriesWithSubcategories();
-        setCategories(response.data);
-      } catch (error) {
-        console.error("Error al cargar categorías:", error);
-      }
-      setIsLoadingCategories(false);
-    };
     loadCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Si ocurre un error grave al cargar datos, mostrar la página de error
+  if (hasErrorCategories) {
+    return <ErrorPage onRetry={loadCategories} />;
+  }
 
   const filteredShows = shows.filter((show) =>
     show.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -140,36 +159,51 @@ const ContentPanel = () => {
         />
       )}
 
-      <p className="text-lg mb-2">
+      <p className="text-base md:text-lg mb-2">
         Seleccione una categoría para mostrar el contenido disponible. Una vez
         hayan contenidos a la vista, puede darle clic para ver detalles sobre
         los mismos.
       </p>
 
       {/* Mostrar loading de categorías o los selectores cuando estén cargadas */}
-      <div className="flex flex-wrap md:flex-nowrap justify-center md:justify-between items-end gap-x-2">
-        <div className="flex justify-center md:justify-between flex-wrap md:flex-nowrap gap-x-2 md:space-x-4 items-end">
-          {isLoadingCategories ? (
-            <LoadingModal
-              isLoading={isLoadingCategories}
-              message="Cargando datos necesarios..."
-              overlay={false}
-            />
-          ) : (
+      {isLoadingCategories ? (
+        <LoadingModal
+          isLoading={isLoadingCategories}
+          message="Cargando datos necesarios..."
+          overlay={false}
+        />
+      ) : (
+        <div className="flex flex-wrap md:flex-nowrap justify-center md:justify-between items-end gap-x-2">
+          <div className="flex flex-wrap md:grid md:grid-cols-4 justify-center md:justify-between gap-x-2 md:gap-x-4 items-end">
             <>
               <Select
                 className="w-full"
                 label="Categoría"
                 value={selectedCategory}
                 onChange={(value) => {
-                  setSelectedCategory(value);
-                  setSelectedSubcategory("");
+                  const selectedCat = categories.find(
+                    (category) => category.id === value
+                  ); // Guardar la categoría seleccionada
+                  if (selectedCat && selectedCat.subcategories) {
+                    // Verificar si la categoría tiene subcategorías
+                    const generalSubcategory = selectedCat.subcategories.find(
+                      (subcategory) => subcategory.name === "General"
+                    );
+                    setSelectedSubcategory(
+                      generalSubcategory
+                        ? generalSubcategory.subcategory_id
+                        : undefined
+                    );
+                  } else {
+                    setSelectedSubcategory(undefined); // No hay subcategorías o categoría inválida
+                  }
+                  setSelectedCategory(value); // Actualizar la categoría seleccionada
                 }}
                 options={[
-                  { label: "Todos", value: "all" },
+                  { value: "Todos", key: "all" },
                   ...categories.map((cat) => ({
-                    label: cat.name,
-                    value: cat.id,
+                    value: cat.name,
+                    key: cat.id,
                   })),
                 ]}
               />
@@ -183,46 +217,65 @@ const ContentPanel = () => {
                     categories
                       .find((cat) => cat.id === selectedCategory)
                       ?.subcategories.map((sub) => ({
-                        label: sub.name,
-                        value: sub.subcategory_id,
+                        value: sub.name,
+                        key: sub.subcategory_id,
                       })) || []
                   }
                 />
               )}
+              {/* Combobox para buscar contenido */}
               {selectedCategory && (
-                <div className="hidden md:inline-flex">
-                  <Input
+                <div className="hidden md:block md:col-span-2">
+                  <Combobox
                     label="Buscar contenido"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(val) => {
+                      setSearchTerm(val);
+                      setCurrentPage(1); // Resetear a la primera página cuando cambie el término de búsqueda
+                    }}
+                    options={filteredShows.map((show) => ({
+                      key: show.id,
+                      value: show.name, // Usar el valor del nombre para las búsquedas
+                    }))}
                     placeholder="Buscar por nombre..."
                     className="w-full md:w-auto mb-4"
                   />
                 </div>
               )}
             </>
-          )}
-        </div>
-        <Button
-          className="flex justify-between gap-x-1 items-center mb-4 bg-success text-white"
-          onClick={() => {
-            setIsDialogOpen(true);
-            setIsEditOption(false);
-          }}
-          disabled={isLoadingCategories || categories.length === 0}
-        >
-          <span>Agregar contenido</span>
-          <Plus className="w-5 h-5" />
-        </Button>
-      </div>
+          </div>
 
-      {/* Buscador debajo de los selectores en móvil */}
+          <Button
+            className="flex justify-between gap-x-1 items-center mb-4 bg-success text-white"
+            onClick={() => {
+              setIsDialogOpen(true);
+              setIsEditOption(false);
+            }}
+            disabled={
+              isLoadingCategories ||
+              categories.length === 0 ||
+              hasErrorCategories
+            }
+          >
+            <span>Agregar contenido</span>
+            <Plus className="w-5 h-5" />
+          </Button>
+        </div>
+      )}
+      {/* Combobox debajo de los selectores en móvil */}
       {selectedCategory && (
         <div className="mb-4 md:mb-6 md:hidden">
-          <Input
+          <Combobox
             label="Buscar contenido"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(val) => {
+              setSearchTerm(val);
+              setCurrentPage(1); // Resetear a la primera página cuando cambie el término de búsqueda
+            }}
+            options={filteredShows.map((show) => ({
+              key: show.id,
+              value: show.name, // Usar el valor del nombre para las búsquedas
+            }))}
             placeholder="Buscar por nombre..."
             className="w-full"
           />
@@ -236,6 +289,8 @@ const ContentPanel = () => {
             message="Cargando contenido..."
             overlay={false}
           />
+        ) : hasErrorShows ? (
+          <ErrorPage onRetry={loadShows} />
         ) : (
           <ContentList
             shows={filteredShows}
@@ -243,6 +298,8 @@ const ContentPanel = () => {
             onDelete={(showId, showName) =>
               openDeleteConfirmation(showId, showName)
             } // Pasar id y nombre
+            currentPage={currentPage} // Pasar la página actual
+            setCurrentPage={setCurrentPage} // Pasar la función para cambiar la página
           />
         )}
       </div>

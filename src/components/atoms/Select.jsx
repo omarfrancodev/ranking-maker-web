@@ -1,68 +1,120 @@
-import React, { useRef, useEffect, useState } from "react";
-import * as SelectPrimitive from "@radix-ui/react-select";
-import { ChevronDown, ChevronUp, Check } from "lucide-react";
+import * as Ariakit from "@ariakit/react";
+import { useMemo, useState } from "react";
+import { matchSorter } from "match-sorter";
+import { ChevronDown, ChevronUp, Check } from "lucide-react"; // Importa el icono Check
 
 const Select = ({
   label,
-  value,
+  value, // Este es el UUID o el key
   onChange,
-  options,
+  options = [], // { key: uuid, value: "Nombre de la categoría" }
   placeholder = "Seleccione una opción",
+  searchable = false, // Controlar si el select es searchable o no
 }) => {
-  const [dropdownWidth, setDropdownWidth] = useState("auto");
-  const triggerRef = useRef(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [isOpen, setIsOpen] = useState(false); // Estado para controlar si el select está abierto o cerrado
+  const [hoveredItem, setHoveredItem] = useState(null); // Estado para rastrear el elemento hovered
 
-  // Ajustar el ancho del dropdown al ancho del Trigger
-  useEffect(() => {
-    if (triggerRef.current) {
-      setDropdownWidth(`${triggerRef.current.offsetWidth}px`);
-    }
-  }, []);
+  // Filtrado de opciones basado en la búsqueda (si es searchable)
+  const filteredOptions = useMemo(() => {
+    return searchable
+      ? matchSorter(options, searchValue, { keys: ["value"] }) // Búsqueda basada en "value" (ej: nombre)
+      : options;
+  }, [searchValue, options, searchable]);
+
+  // Obtener el value (nombre) de la opción seleccionada o mostrar el placeholder
+  const selectedLabel = useMemo(() => {
+    const selectedOption = options.find((option) => option.key === value); // Buscar por key (uuid)
+    return selectedOption ? selectedOption.value : placeholder; // Mostrar el value (nombre legible) o placeholder
+  }, [options, value, placeholder]);
 
   return (
     <div className="mb-4 relative">
-      <label className="block text-sm font-medium mb-1">{label}</label>
-      <SelectPrimitive.Root
-        value={value}
-        onValueChange={onChange}
-        open={isOpen}
-        onOpenChange={setIsOpen}
+      {/* Provider para el Combobox (buscador) */}
+      <Ariakit.ComboboxProvider
+        value={searchValue}
+        setValue={(val) => setSearchValue(val)}
+        resetValueOnHide
       >
-        <SelectPrimitive.Trigger
-          ref={triggerRef}
-          className="w-full border border-gray-300 rounded-md p-2 md:py-2 md:px-3 flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-blue-500"
-          onTouchStart={(e) => e.stopPropagation()}
-          onTouchEnd={(e) => e.stopPropagation()}
+        {label && (
+          <Ariakit.ComboboxLabel className="block text-sm font-medium mb-1">
+            {label}:
+          </Ariakit.ComboboxLabel>
+        )}
+        {/* Provider para el Select (desplegable) */}
+        <Ariakit.SelectProvider
+          value={value}
+          setValue={(key) => {
+            const selectedOption = options.find((option) => option.key === key);
+            if (selectedOption) {
+              onChange(selectedOption.key); // Actualizar usando el key (uuid)
+            }
+          }}
         >
-          <SelectPrimitive.Value placeholder={placeholder} />
-          <SelectPrimitive.Icon>
-            <ChevronDown className="ml-2 w-4 h-4" />
-          </SelectPrimitive.Icon>
-        </SelectPrimitive.Trigger>
-
-        <SelectPrimitive.Portal>
-          <SelectPrimitive.Content
-            className="bg-white border border-gray-300 rounded-md z-50 shadow-lg min-h-min max-h-60"
-            style={{ width: dropdownWidth }}
-            position="popper"
+          {/* Select Trigger con flecha hacia abajo o arriba */}
+          <Ariakit.Select
+            className="min-w-32 md:min-w-40 w-full max-w-full border border-gray-300 rounded-md p-2 md:py-2 md:px-3 flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onClick={() => {
+              setIsOpen(!isOpen);
+              setHoveredItem(value);
+            }}
           >
-            <SelectPrimitive.ScrollUpButton className="flex justify-center p-2">
-              <ChevronUp />
-            </SelectPrimitive.ScrollUpButton>
+            {selectedLabel}
+            {/* Flecha hacia abajo o hacia arriba con transición */}
+            <span className="ml-2 transition-transform duration-300">
+              {isOpen ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </span>
+          </Ariakit.Select>
 
-            <SelectPrimitive.Viewport>
-              {options.length > 0 ? (
-                options.map((option, index) => {
-                  const optionValue =
-                    typeof option === "string" ? option : option.value;
+          {/* Popover (contenedor de opciones) */}
+          <Ariakit.SelectPopover
+            gutter={4}
+            sameWidth
+            className="popover p-2 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto z-50"
+            onOpen={() => setIsOpen(true)}
+            onClose={() => {
+              setIsOpen(false);
+              setHoveredItem(null); // Resetea hoveredItem al cerrar
+            }}
+          >
+            {/* Si es searchable, se muestra el Combobox para buscar */}
+            {searchable && (
+              <Ariakit.Combobox
+                autoSelect
+                placeholder="Buscar..."
+                className="w-full border border-gray-300 rounded-md p-2 mb-2"
+              />
+            )}
+
+            {/* Lista de opciones */}
+            <Ariakit.ComboboxList>
+              {filteredOptions.length > 0 ? (
+                filteredOptions.map((option) => {
+                  const isSelected = option.key === value;
+                  const isHovered = option.key === hoveredItem;
 
                   return (
-                    <SelectItem
-                      key={index}
-                      value={optionValue}
-                      label={typeof option === "string" ? option : option.label}
-                    />
+                    <Ariakit.SelectItem
+                      key={option.key} // Usar el key (uuid) como identificador único
+                      value={option.key} // Usar el key (uuid) para selección
+                      className={`p-2 rounded-md cursor-pointer flex gap-x-1 justify-between items-center ${
+                        isHovered
+                          ? "bg-blue-500 text-white"
+                          : "hover:bg-blue-500 hover:text-white"
+                      }`}
+                      onMouseEnter={() => setHoveredItem(option.key)} // Establece hoveredItem al hacer hover
+                      onMouseLeave={() =>
+                        setHoveredItem(isSelected ? value : null)
+                      } // Resetea hoveredItem al salir del hover
+                    >
+                      <span>{option.value}</span>
+                      {isSelected && <Check className="w-4 h-4" />}{" "}
+                      {/* Checkmark si está seleccionado */}
+                    </Ariakit.SelectItem>
                   );
                 })
               ) : (
@@ -70,38 +122,12 @@ const Select = ({
                   No se encontraron opciones
                 </div>
               )}
-            </SelectPrimitive.Viewport>
-
-            <SelectPrimitive.ScrollDownButton className="flex justify-center p-2">
-              <ChevronDown />
-            </SelectPrimitive.ScrollDownButton>
-          </SelectPrimitive.Content>
-        </SelectPrimitive.Portal>
-      </SelectPrimitive.Root>
+            </Ariakit.ComboboxList>
+          </Ariakit.SelectPopover>
+        </Ariakit.SelectProvider>
+      </Ariakit.ComboboxProvider>
     </div>
   );
 };
-
-const SelectItem = React.forwardRef(({ value, label }, ref) => (
-  <SelectPrimitive.Item
-    value={value}
-    ref={ref}
-    className="py-2 px-4 cursor-pointer hover:bg-gray-100 flex justify-between items-center"
-    onClick={(event) => {
-      event.stopPropagation(); // Detiene la propagación del evento de clic
-    }}
-    onTouchStart={(event) => {
-      event.stopPropagation(); // Detiene la propagación del evento táctil
-    }}
-    onTouchEnd={(event) => {
-      event.stopPropagation(); // Detiene la propagación del evento táctil
-    }}
-  >
-    <SelectPrimitive.ItemText>{label}</SelectPrimitive.ItemText>
-    <SelectPrimitive.ItemIndicator className="text-blue-500">
-      <Check />
-    </SelectPrimitive.ItemIndicator>
-  </SelectPrimitive.Item>
-));
 
 export default Select;

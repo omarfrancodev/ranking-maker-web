@@ -55,7 +55,7 @@ const Notification = ({ message, type = "info", duration = 3000, onClose }) => {
 
   return (
     <ToastPrimitive.Root
-      className={`flex items-center p-4 rounded-md shadow-lg ${getNotificationStyle()} gap-x-2 relative overflow-hidden`}
+      className={`flex items-center p-4 rounded-md shadow-md ${getNotificationStyle()} gap-x-2 relative overflow-hidden`}
       duration={duration}
       onOpenChange={onClose}
     >
@@ -65,7 +65,7 @@ const Notification = ({ message, type = "info", duration = 3000, onClose }) => {
       </ToastPrimitive.Description>
 
       {/* Barra de progreso */}
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-300">
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-200">
         <div
           className={`h-full ${getNotificationStyle()} opacity-50`}
           style={{ width: `${progress}%`, transition: "width 50ms linear" }}

@@ -23,6 +23,7 @@ const AddPersonDialog = ({
         label="Nombre de la Persona"
         value={newPersonName}
         onChange={(e) => setNewPersonName(e.target.value)}
+        placeholder="ej. Oscar"
       />
 
       <div className="flex justify-center w-full">
