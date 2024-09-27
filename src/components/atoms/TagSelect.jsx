@@ -21,7 +21,7 @@ const TagSelect = ({
   return (
     <div className="mb-4">
       <label className="block text-sm font-medium mb-2">{label}</label>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-min max-h-32 md:max-h-24 overflow-auto p-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-min max-h-32 overflow-auto p-2">
         {options.map((option) => {
           const isSelected = value.includes(option.value);
           const isDisabled = nonRemovableIds.includes(option.value);

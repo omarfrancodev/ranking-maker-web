@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ContentItem from "../molecules/Contents/ContentItem";
 import Pagination from "../atoms/Pagination";
 import Select from "../atoms/Select"; // Importar tu Select atom
+import { motion } from "framer-motion";
 
 const ContentList = ({
   shows,
@@ -32,7 +33,13 @@ const ContentList = ({
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentShows = shows.slice(indexOfFirstItem, indexOfLastItem);
 
-  return (
+  // Animaciones de framer-motion
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  return shows.length > 0 ? (
     <div className="space-y-4">
       {/* Select para cambiar el número de elementos por página */}
       {shows.length > 0 && (
@@ -46,7 +53,6 @@ const ContentList = ({
               { value: 16, key: 16 },
               { value: 32, key: 32 },
               { value: 64, key: 64 },
-              { value: 128, key: 128 },
             ]}
           />
           <label className="text-base font-semibold w-32 text-end">
@@ -55,15 +61,18 @@ const ContentList = ({
         </div>
       )}
 
-      {/* Mostrar los elementos paginados */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4  gap-1 md:gap-4">
-        {currentShows.map((show) => (
-          <ContentItem
+      {/* Mostrar los elementos paginados con animaciones */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+        {currentShows.map((show, index) => (
+          <motion.div
             key={show.id}
-            show={show}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
+            variants={itemVariants}
+            initial="hidden"
+            animate="visible"
+            transition={{ delay: index * 0.075 }} // Delay incremental por cada item
+          >
+            <ContentItem show={show} onEdit={onEdit} onDelete={onDelete} />
+          </motion.div>
         ))}
       </div>
 
@@ -76,6 +85,17 @@ const ContentList = ({
           onPageChange={handlePageChange}
         />
       )}
+    </div>
+  ) : (
+    <div className="flex w-full h-full justify-center items-center align-middle">
+      <motion.h1
+        className="text-2xl h-full font-semibold text-gray-800 mb-2 text-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        No se encontraron contenidos.
+      </motion.h1>
     </div>
   );
 };

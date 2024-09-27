@@ -15,12 +15,18 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.code === "ECONNABORTED") {
+    if (axios.isCancel(error)) {
+      // Manejar el error de solicitud cancelada
+      return Promise.reject(new Error("La solicitud fue cancelada."));
+    } else if (error.message && error.message.includes("timeout")) {
       // Manejar el error de timeout
-      throw new Error(
-        "Se superó el tiempo máximo de espera. Inténtalo de nuevo más tarde."
+      return Promise.reject(
+        new Error(
+          "Se superó el tiempo máximo de espera. Inténtalo de nuevo más tarde."
+        )
       );
     }
+    // Manejar otros tipos de errores
     return Promise.reject(error);
   }
 );
@@ -38,7 +44,7 @@ const formatTitleForQuery = (title) => {
 };
 
 // Fetch content data by title (con ajuste para los paréntesis)
-export const fetchContentDataByTitle = async (query) => {
+export const fetchContentDataByTitle = async (query, year = null) => {
   try {
     // Extraer el título antes de los paréntesis, si existe
     const titleToSearch = extractTitleBeforeParenthesis(query);
@@ -46,10 +52,13 @@ export const fetchContentDataByTitle = async (query) => {
     // Reemplazar espacios por "+"
     const formattedTitle = formatTitleForQuery(titleToSearch);
 
+    let fullQuery = `${paramAPIKey}&t=${formattedTitle}&plot=full`;
+    if (year !== null) {
+      fullQuery += `&y=${year}`;
+    }
+
     // Realizar la solicitud a la API con el título formateado
-    const response = await axiosInstance.get(
-      `${paramAPIKey}&t=${formattedTitle}&plot=full`
-    );
+    const response = await axiosInstance.get(fullQuery);
     console.log(response);
     if (response.data.Error) {
       throw new Error(response.data.Error);
