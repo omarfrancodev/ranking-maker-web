@@ -19,7 +19,7 @@ const AppRoutes = () => {
 
   return (
     <Router>
-      <MainTemplate title={"Ranking Maker"} className={"bg-mainBG"}>
+      <MainTemplate className={"bg-mainBG"}>
         <TabsLink tabs={tabs} />
         <Routes>
           <Route
