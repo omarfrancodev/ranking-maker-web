@@ -17,7 +17,7 @@ const PageTemplate = ({
           <p className={`${subtileColor}`}>{subtitle}</p>
         </div>
       </div>
-      <div className="overflow-visible min-h-screen md:min-h-full md:max-h-max p-3 md:p-4">
+      <div className="overflow-clip min-h-screen md:min-h-full md:max-h-max p-3 md:p-4">
         {children}
       </div>
     </div>
