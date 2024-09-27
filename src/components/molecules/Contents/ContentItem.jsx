@@ -36,7 +36,10 @@ const ContentItem = ({ show, onEdit, onDelete }) => {
     setIsInfoDialogOpen(true);
     setContentTitle(show.name);
     try {
-      const response = await fetchContentDataByTitle(show.name);
+      const response = await fetchContentDataByTitle(
+        show.name,
+        show.release_year
+      );
       setContentInfo(response.data); // Almacenar la información obtenida
     } catch (error) {
       console.error("Error al obtener la información del contenido:", error);
@@ -62,10 +65,20 @@ const ContentItem = ({ show, onEdit, onDelete }) => {
   return (
     <div
       onClick={handleClickItem}
-      className={`p-4 md:p-3 rounded-lg shadow-md ${bgColor} text-white transition hover:bg-opacity-75 hover:ring hover:ring-offset-2 hover:ring-indigo-700 flex flex-col justify-between h-full cursor-pointer`}
+      className={`p-3 rounded-lg shadow-md ${bgColor} bg-opacity-80 text-white transition hover:bg-opacity-100 hover:ring-2 hover:ring-offset-2 hover:ring-indigo-700 flex flex-col justify-between h-full cursor-pointer`}
     >
       {/* Título alineado arriba */}
-      <h3 className="font-semibold text-lg mb-4">{show.name}</h3>
+      <h3 className="font-semibold text-lg mb-4">
+        {show.name}
+        {show.release_year !== null ? (
+          <span className="text-base text-gray-200">
+            {" "}
+            ({show.release_year})
+          </span>
+        ) : (
+          ""
+        )}
+      </h3>
 
       {/* Categoría y subcategorías alineadas abajo */}
       <div className="flex justify-between items-end">
@@ -111,7 +124,7 @@ const ContentItem = ({ show, onEdit, onDelete }) => {
         <div className="flex space-x-1 md:space-x-2">
           <Tooltip content="Editar">
             <Button
-              className={`${buttonBgColor} bg-opacity-75 hover:bg-blue-400 text-white rounded-md`}
+              className={`${buttonBgColor} bg-opacity-75 hover:bg-blue-400  hover:ring-1 hover:ring-white text-white rounded-md`}
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(show);
@@ -122,7 +135,7 @@ const ContentItem = ({ show, onEdit, onDelete }) => {
           </Tooltip>
           <Tooltip content="Eliminar">
             <Button
-              className={`${buttonBgColor} bg-opacity-75 hover:bg-red-500 text-white rounded-md`}
+              className={`${buttonBgColor} bg-opacity-75 hover:bg-red-500 hover:ring-1 hover:ring-white text-white rounded-md`}
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(show.id, show.name);

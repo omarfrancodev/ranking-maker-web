@@ -75,9 +75,7 @@ const Select = ({
             gutter={4}
             sameWidth
             className="popover p-2 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto z-50"
-            onOpen={() => setIsOpen(true)}
             onClose={() => {
-              setIsOpen(false);
               setHoveredItem(null); // Resetea hoveredItem al cerrar
             }}
           >

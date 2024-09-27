@@ -107,22 +107,7 @@ const CategoryPanel = () => {
         return;
       }
       try {
-        const res = await createSubcategory(
-          newSubcategoryName,
-          selectedCategory
-        );
-
-        // Actualizar las subcategorías de la categoría seleccionada
-        setCategories((prevCategories) =>
-          prevCategories.map((category) =>
-            category.id === selectedCategory
-              ? {
-                  ...category,
-                  subcategories: [...category.subcategories, res.data],
-                }
-              : category
-          )
-        );
+        await createSubcategory(newSubcategoryName, selectedCategory);
 
         addNotification(
           "success",
@@ -132,6 +117,7 @@ const CategoryPanel = () => {
         // Limpiar el estado
         setNewSubcategoryName("");
         setIsDialogOpen(false);
+        loadCategories();
       } catch (error) {
         addNotification(
           "error",

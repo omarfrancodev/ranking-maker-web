@@ -101,22 +101,11 @@ const ContentPanel = () => {
     setIsDialogOpen(true);
   };
 
-  const handleSaveShow = async (updatedShow) => {
-    setIsSaving(true); // Mostrar el overlay de guardado
-    try {
-      // Simular la operación de guardado (puede ser una operación de API)
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulando operación asíncrona
-      addNotification(
-        "success",
-        `Contenido "${updatedShow.name}" actualizado exitosamente.`
-      );
-      setIsDialogOpen(false);
-      loadShows();
-    } catch (error) {
-      addNotification("error", "Error al actualizar el contenido.");
-    } finally {
-      setIsSaving(false); // Ocultar el overlay de guardado
-    }
+  const handleSaveShow = async () => {
+    setIsDialogOpen(false);
+    setIsEditOption(false);
+    setEditShow(null);
+    loadShows();
   };
 
   const handleDeleteShow = async (showId) => {
@@ -212,7 +201,10 @@ const ContentPanel = () => {
                 <Select
                   label="Subcategoría"
                   value={selectedSubcategory}
-                  onChange={(value) => setSelectedSubcategory(value)}
+                  onChange={(value) => {
+                    setSelectedSubcategory(value);
+                    setCurrentPage(1);
+                  }}
                   options={
                     categories
                       .find((cat) => cat.id === selectedCategory)
@@ -282,7 +274,7 @@ const ContentPanel = () => {
         </div>
       )}
 
-      <div className="relative min-h-[200px]">
+      <div className="relative min-h-[200px] h-full">
         {isLoadingShows ? (
           <LoadingModal
             isLoading={isLoadingShows}
@@ -292,15 +284,20 @@ const ContentPanel = () => {
         ) : hasErrorShows ? (
           <ErrorPage onRetry={loadShows} />
         ) : (
-          <ContentList
-            shows={filteredShows}
-            onEdit={handleEditShow}
-            onDelete={(showId, showName) =>
-              openDeleteConfirmation(showId, showName)
-            } // Pasar id y nombre
-            currentPage={currentPage} // Pasar la página actual
-            setCurrentPage={setCurrentPage} // Pasar la función para cambiar la página
-          />
+          !isLoadingCategories &&
+          !isLoadingShows &&
+          !hasErrorShows &&
+          selectedCategory !== "" && (
+            <ContentList
+              shows={filteredShows}
+              onEdit={handleEditShow}
+              onDelete={(showId, showName) =>
+                openDeleteConfirmation(showId, showName)
+              } // Pasar id y nombre
+              currentPage={currentPage} // Pasar la página actual
+              setCurrentPage={setCurrentPage} // Pasar la función para cambiar la página
+            />
+          )
         )}
       </div>
 
@@ -318,11 +315,11 @@ const ContentPanel = () => {
       <AddContentDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        categories={categories}
         editShow={editShow}
         isEditShow={isEditOption}
         onSaveShow={handleSaveShow} // Cambiar "onSave" a "onSaveShow"
         onAddShow={loadShows} // Añadir "onAddShow" para recargar contenidos después de añadir uno nuevo
+        setIsSaving={setIsSaving}
       />
     </div>
   );
