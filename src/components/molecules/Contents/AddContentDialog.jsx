@@ -15,10 +15,11 @@ import { useNotification } from "../../../context/NotificationContext";
 const AddContentDialog = ({
   isOpen,
   onClose,
-  onAddShow, // Función para recargar los contenidos
   editShow, // Contenido que se está editando
   isEditShow,
   onSaveShow, // Función para guardar los cambios al editar
+  onAddShow, // Función para recargar los contenidos
+  setIsSaving,
 }) => {
   const [showName, setShowName] = useState("");
   const [categories, setCategories] = useState([]);
@@ -26,6 +27,7 @@ const AddContentDialog = ({
   const [selectedSubcategories, setSelectedSubcategories] = useState([]);
   const [nonRemovableIds, setNonRemovableIds] = useState([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [releaseYear, setReleaseYear] = useState("");
 
   const { addNotification } = useNotification();
 
@@ -59,6 +61,7 @@ const AddContentDialog = ({
       if (validCategory) {
         setShowName(editShow.name);
         setSelectedCategory(editShow.category.id);
+        setReleaseYear(editShow.release_year || "");
 
         const validSubcategories = editShow.subcategories
           .map((sub) => sub.id)
@@ -81,6 +84,7 @@ const AddContentDialog = ({
       setShowName("");
       setSelectedCategory("");
       setSelectedSubcategories([]);
+      setReleaseYear("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editShow, categories, isEditShow]);
@@ -121,18 +125,29 @@ const AddContentDialog = ({
       name: showName,
       category: selectedCategory,
       subcategories: selectedSubcategories,
+      release_year: releaseYear || null,
     };
+
+    console.log(payload);
 
     try {
       if (editShow) {
+        setIsSaving(true);
         await updateContent(editShow.id, payload);
-        onSaveShow(payload);
+        addNotification(
+          "success",
+          `Contenido "${payload.name}" actualizado exitosamente.`
+        );
+        setIsSaving(false);
+        onSaveShow();
       } else {
+        setIsSaving(true);
         await createContent(payload);
         addNotification(
           "success",
           `Contenido "${showName}" agregado exitosamente.`
         );
+        setIsSaving(false);
         onAddShow(); // Recargar shows después de añadir uno nuevo
       }
       onClose();
@@ -157,10 +172,11 @@ const AddContentDialog = ({
         setSelectedCategory("");
         setSelectedSubcategories([]);
         setNonRemovableIds([]);
+        setReleaseYear("");
         editShow = null;
       }}
       title={editShow ? "Editar contenido" : "Añadir nuevo contenido"}
-      description="Escoja un nombre, una categoría y las subcategorías del contenido que quiera agregar"
+      description="Escoja un nombre, una categoría, subcategorías y el año de lanzamiento del contenido."
     >
       {/* Mostrar LoadingModal mientras se cargan las categorías */}
       {isLoadingCategories ? (
@@ -173,13 +189,24 @@ const AddContentDialog = ({
         </div>
       ) : (
         <>
-          <Input
-            label="Nombre del contenido"
-            value={showName}
-            onChange={(e) => setShowName(e.target.value)}
-            placeholder="ej. El Origen"
-          />
+          <div className="flex flex-wrap md:grid md:grid-cols-3 gap-x-2">
+            <Input
+              label="Nombre del contenido"
+              value={showName}
+              onChange={(e) => setShowName(e.target.value)}
+              placeholder="ej. El Origen"
+              classNames="w-full md:col-span-2"
+            />
 
+            <Input
+              label="Año de lanzamiento" // Nuevo campo de año de lanzamiento
+              value={releaseYear}
+              onChange={(e) => setReleaseYear(e.target.value)}
+              placeholder="ej. 2010"
+              type="number" // Especificar que solo se pueden ingresar números
+              classNames="w-full md:col-span-1"
+            />
+          </div>
           <Select
             label="Categoría"
             value={selectedCategory}
